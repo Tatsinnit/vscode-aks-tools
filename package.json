@@ -128,9 +128,9 @@
         "ts-loader": "^8.0.18",
         "tslint": "^5.20.1",
         "typescript": "^3.7.2",
-        "vscode": "^1.1.6",
-        "webpack": "^5.25.1",
-        "webpack-cli": "^4.5.0"
+        "vscode": "^1.1.37",
+        "webpack": "^5.36.2",
+        "webpack-cli": "^4.6.0"
     },
     "dependencies": {
         "@azure/arm-containerservice": "^7.0.1",
