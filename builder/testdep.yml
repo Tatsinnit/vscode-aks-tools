@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: testghstuff
+  labels:
+    app: testghstuff
+spec:
+  selector:
+    matchLabels:
+      app: testghstuff
+  template:
+    metadata:
+      labels:
+        app: testghstuff
+    spec:
+      containers:
+      - name: testghstuff
+        image: docker.io/tatsat/testghstuff:latest
+        imagePullPolicy: Always

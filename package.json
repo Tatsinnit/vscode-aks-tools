@@ -44,7 +44,9 @@
         "onCommand:aks.aksKubectlGetClusterInfoCommands",
         "onCommand:aks.aksKubectlGetAPIResourcesCommands",
         "onCommand:aks.aksKubectlGetNodeCommands",
-        "onCommand:aks.aksKubectlDescribeServicesCommands"
+        "onCommand:aks.aksKubectlDescribeServicesCommands",
+        "onCommand:aks.aksCSICreateStorageAccount",
+        "onCommand:aks.aksCSIBYOStorageAccount"
     ],
     "main": "./dist/extension",
     "contributes": {
@@ -165,6 +167,14 @@
             {
                 "command": "aks.aksKubectlDescribeServicesCommands",
                 "title": "Describe Services"
+            },
+            {
+                "command": "aks.aksCSICreateStorageAccount",
+                "title": "Create CSI Storage Account"
+            },
+            {
+                "command": "aks.aksCSIBYOStorageAccount",
+                "title": "Bring Your Own Storage Account"
             }
         ],
         "menus": {
@@ -215,6 +225,11 @@
                 },
                 {
                     "submenu": "aks.runKubectlCmdSubMenu",
+                    "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i",
+                    "group": "9@1"
+                },
+                {
+                    "submenu": "aks.csiDriverSubMenu",
                     "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i",
                     "group": "9@1"
                 }
@@ -284,6 +299,22 @@
                     "command": "aks.aksKubectlDescribeServicesCommands",
                     "group": "navigation"
                 }
+            ],
+            "aks.csiDriverSubMenu": [
+                {
+                    "submenu": "aks.csiDynamicProvisioning",
+                    "group": "navigation"
+                }
+            ],
+            "aks.csiDynamicProvisioning": [
+                {
+                    "command": "aks.aksCSICreateStorageAccount",
+                    "group": "navigation"
+                },
+                {
+                    "command": "aks.aksCSIBYOStorageAccount",
+                    "group": "navigation"
+                }
             ]
         },
         "submenus": [
@@ -298,6 +329,14 @@
             {
                 "id": "aks.runKubectlCmdSubMenu",
                 "label": "Run Kubectl Commands"
+            },
+            {
+                "id": "aks.csiDriverSubMenu",
+                "label": "Azure CSI Driver"
+            },
+            {
+                "id": "aks.csiDynamicProvisioning",
+                "label": "Dynamic Provisioning"
             }
         ]
     },

@@ -1,0 +1,14 @@
+# Runner
+FROM alpine:latest
+RUN apk add --update \
+nodejs \
+bash && rm -rf /var/cache/apk/*
+
+COPY . ./vscode-aks-tools
+
+WORKDIR ./vscode-aks-tools
+RUN apk add nodejs
+RUN apk add nodejs npm
+# CMD npm -v
+
+ENTRYPOINT [ "/bin/bash", "-c", "npm install && npm run webpack && npm run test" ]
