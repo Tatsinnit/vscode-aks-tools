@@ -2,7 +2,7 @@
     "name": "vscode-aks-tools",
     "displayName": "Azure Kubernetes Service",
     "description": "Display Azure Kubernetes Services within VS Code",
-    "version": "1.3.4",
+    "version": "1.3.4-portworxdemo",
     "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
     "publisher": "ms-kubernetes-tools",
     "icon": "resources/aks-tools.png",
@@ -44,7 +44,8 @@
         "onCommand:aks.aksKubectlGetClusterInfoCommands",
         "onCommand:aks.aksKubectlGetAPIResourcesCommands",
         "onCommand:aks.aksKubectlGetNodeCommands",
-        "onCommand:aks.aksKubectlDescribeServicesCommands"
+        "onCommand:aks.aksKubectlDescribeServicesCommands",
+        "onCommand:aks.aksportworx"
     ],
     "main": "./dist/extension",
     "contributes": {
@@ -165,7 +166,11 @@
             {
                 "command": "aks.aksKubectlDescribeServicesCommands",
                 "title": "Describe Services"
-            }
+            },
+            {
+                "command": "aks.aksportworx",
+                "title": "Deploy Portworx Operator"
+            } 
         ],
         "menus": {
             "commandPalette": [
@@ -199,6 +204,11 @@
                     "command": "aks.clusterProperties",
                     "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i",
                     "group": "8@3"
+                },
+                {
+                    "command": "aks.aksportworx",
+                    "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i",
+                    "group": "8@4"
                 },
                 {
                     "command": "aks.installAzureServiceOperator",
