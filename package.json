@@ -44,7 +44,8 @@
         "onCommand:aks.aksKubectlGetClusterInfoCommands",
         "onCommand:aks.aksKubectlGetAPIResourcesCommands",
         "onCommand:aks.aksKubectlGetNodeCommands",
-        "onCommand:aks.aksKubectlDescribeServicesCommands"
+        "onCommand:aks.aksKubectlDescribeServicesCommands",
+        "onCommand:aks.aksKubectlApplyCanIPullCommands"
     ],
     "main": "./dist/extension",
     "contributes": {
@@ -165,6 +166,10 @@
             {
                 "command": "aks.aksKubectlDescribeServicesCommands",
                 "title": "Describe Services"
+            }, 
+            {
+                "command": "aks.aksKubectlApplyCanIPullCommands",
+                "title": "Check ACR Pull"
             }
         ],
         "menus": {
@@ -217,6 +222,11 @@
                     "submenu": "aks.runKubectlCmdSubMenu",
                     "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i",
                     "group": "9@1"
+                },
+                {
+                    "submenu": "aks.runTroubleshootSubMenu",
+                    "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i",
+                    "group": "9@2"
                 }
             ],
             "aks.detectorsSubMenu": [
@@ -284,6 +294,12 @@
                     "command": "aks.aksKubectlDescribeServicesCommands",
                     "group": "navigation"
                 }
+            ],
+            "aks.runTroubleshootSubMenu": [
+                {
+                    "command": "aks.aksKubectlApplyCanIPullCommands",
+                    "group": "navigation"
+                }
             ]
         },
         "submenus": [
@@ -298,6 +314,10 @@
             {
                 "id": "aks.runKubectlCmdSubMenu",
                 "label": "Run Kubectl Commands"
+            },
+            {
+                "id": "aks.runTroubleshootSubMenu",
+                "label": "Troubleshooting"
             }
         ]
     },
