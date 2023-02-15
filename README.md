@@ -14,6 +14,7 @@
 * Run Managed Cluster Operations from your AKS cluster
 * Run Kubernetes API Health Endpoints
 * Deploy and Undeploy InspektorGadget
+* test test something small for chtgpt
 
 ## Installation
 
