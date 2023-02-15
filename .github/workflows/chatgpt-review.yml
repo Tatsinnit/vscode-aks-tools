@@ -1,18 +1,17 @@
 name: ChatGPT Review
 
 on:
- pull_request:
- workflow_dispatch:
-
+  pull_request:
+    branches:
+      - master
 
 jobs:
-  test:
-    name: Test
+  chatgpt-review:
+    name: ChatGPT Review
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: ChatGPT Reviewer
-      uses: ./
+    - uses: feiskyer/ChatGPT-Reviewer@v0.3
+      name: ChatGPT Review
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
