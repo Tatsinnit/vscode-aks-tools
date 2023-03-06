@@ -27,39 +27,7 @@
         "kubernetes-extension-cloud-provider"
     ],
     "activationEvents": [
-        "onView:kubernetes.cloudExplorer",
-        "onCommand:aks.periscope",
-        "onCommand:aks.installAzureServiceOperator",
-        "onCommand:aks.configureStarterWorkflow",
-        "onCommand:aks.aksCRUDDiagnostics",
-        "onCommand:aks.aksBestPracticesDiagnostics",
-        "onCommand:aks.configureHelmStarterWorkflow",
-        "onCommand:aks.configureKomposeStarterWorkflow",
-        "onCommand:aks.configureKustomizeStarterWorkflow",
-        "onCommand:aks.showInPortal",
-        "onCommand:aks.clusterProperties",
-        "onCommand:aks.createClusterNavToAzurePortal",
-        "onCommand:aks.aksKubectlGetPodsCommands",
-        "onCommand:aks.aksKubectlGetClusterInfoCommands",
-        "onCommand:aks.aksKubectlGetAPIResourcesCommands",
-        "onCommand:aks.aksKubectlGetNodeCommands",
-        "onCommand:aks.aksKubectlDescribeServicesCommands",
-        "onCommand:aks.aksKubectlGetEventsCommands",
-        "onCommand:aks.aksCategoryConnectivity",
-        "onCommand:aks.aksDeleteCluster",
-        "onCommand:aks.aksRotateClusterCert",
-        "onCommand:aks.aksKubectlK8sHealthzAPIEndpointCommands",
-        "onCommand:aks.aksKubectlK8sLivezAPIEndpointCommands",
-        "onCommand:aks.aksKubectlK8sReadyzAPIEndpointCommands",
-        "onCommand:aks.aksInspektorGadgetDeploy",
-        "onCommand:aks.aksInspektorGadgetUnDeploy",
-        "onCommand:aks.aksInspektorGadgetTopTCP",
-        "onCommand:aks.aksInspektorGadgetTopEBPF",
-        "onCommand:aks.aksInspektorGadgetTopBlockIO",
-        "onCommand:aks.aksInspektorGadgetTopFile",
-        "onCommand:aks.aksInspektorGadgetProfileCPU",
-        "onCommand:aks.aksInspektorGadgetSnapshotProcess",
-        "onCommand:aks.aksInspektorGadgetSnapshotSocket"
+        "onView:kubernetes.cloudExplorer"
     ],
     "main": "./dist/extension",
     "contributes": {
@@ -252,6 +220,10 @@
             {
                 "command": "aks.aksInspektorGadgetSnapshotSocket",
                 "title": "Snapshot Socket"
+            },
+            {
+                "command": "aks.aksHeadlampDeploy",
+                "title": "Deploy Headlamp"
             }
         ],
         "menus": {
@@ -319,6 +291,10 @@
                     "submenu": "aks.inspektorGadgetSubMenu",
                     "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i || view == extension.vsKubernetesExplorer && viewItem =~ /vsKubernetes\\.\\w*cluster$/i",
                     "group": "9@4"
+                },
+                {
+                    "command": "aks.aksHeadlampDeploy",
+                    "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i || view == extension.vsKubernetesExplorer && viewItem =~ /vsKubernetes\\.\\w*cluster$/i"
                 }
             ],
             "aks.detectorsSubMenu": [
@@ -548,7 +524,7 @@
         "mocha": "^9.0.2",
         "sinon": "^12.0.1",
         "ts-loader": "^9.4.1",
-        "typescript": "^3.9.10",
+        "typescript": "^4.9.5",
         "webpack": "^5.75.0",
         "webpack-cli": "^4.10.0"
     },
@@ -572,6 +548,7 @@
         "@types/sinon": "^10.0.6",
         "@types/sinonjs__fake-timers": "^6.0.2",
         "ajv": "^6.12.6",
+        "axios": "^1.3.4",
         "cross-fetch": "^3.1.5",
         "decompress": "^4.2.1",
         "download": "^8.0.0",
