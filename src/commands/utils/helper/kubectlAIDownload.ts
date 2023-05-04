@@ -33,21 +33,32 @@ export async function getKubectlAIBinaryPath(): Promise<Errorable<string>> {
 function getArchiveFilename() {
     let architecture = os.arch();
     let operatingSystem = os.platform().toLocaleLowerCase();
+    let extension = ".tar.gz";
     
     if (architecture === 'x64') {
         architecture = 'amd64';
     }
 
-    return `kubectl-ai_${operatingSystem}_${architecture}.tar.gz`;
+    if (operatingSystem === 'win32') {
+        operatingSystem = 'windows';
+        extension = ".zip"
+    }
+
+    return `kubectl-ai_${operatingSystem}_${architecture}${extension}`;
 }
 
 function getPathToBinaryInArchive() {
    let architecture = os.arch();
+   let operatingSystem = os.platform().toLocaleLowerCase();
 
    if (architecture === 'x64') {
        architecture = 'amd64';
    }
 
    let extension = '';
+   if (operatingSystem === 'win32') {
+       extension = '.exe';
+   }
+
    return path.join(`kubectl-ai${extension}`);
 }
