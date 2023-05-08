@@ -11,6 +11,7 @@ import path = require('path');
 import { invokeKubectlCommand } from '../utils/kubectl';
 
 var shelljs = require('shelljs');
+const YamlValidator = require('yaml-validator');
 
 enum Command {
     KubectlAICommand
@@ -136,12 +137,13 @@ async function runKubectlAIGadgetCommands(
             if (command.startsWith("reprompt:")) {
                 rePromptMode = true;
             }
-        
+
             if (rePromptMode) {
                 const data = vscode.window.activeTextEditor?.document;
                 const activeEditor = vscode.window.activeTextEditor;
                 if (activeEditor) {
                     const tmpFile = await tmpfile.createTempFile(data?.getText()!, "YAML");
+                    validateYaml(tmpFile.filePath);
                     try {
                         const isWindows = os.platform().toLocaleLowerCase() === "win32";
                         const catCommand = isWindows ? "type" : "cat";
@@ -192,4 +194,17 @@ async function runKubectlAIGadgetCommands(
         vscode.window.showErrorMessage(extensionPath.error);
         return;
     }
+}
+
+function validateYaml(filePath: string) {
+    // Default options
+    const options = {
+        log: false,
+        structure: false,
+        onWarning: null,
+        writeJson: false
+    };
+    const validator = new YamlValidator(options);
+    validator.validate([filePath]);
+    validator.report();
 }
