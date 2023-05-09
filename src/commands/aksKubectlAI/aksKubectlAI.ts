@@ -2,19 +2,20 @@ import * as vscode from 'vscode';
 import * as os from 'os';
 import * as k8s from 'vscode-kubernetes-tools-api';
 import { IActionContext } from "@microsoft/vscode-azext-utils";
-import { getKubernetesClusterInfo, KubernetesClusterInfo } from '../utils/clusters';
 import { getExtensionPath, longRunning } from '../utils/host';
-import { Errorable, failed } from '../utils/errorable';
+import { failed } from '../utils/errorable';
 import { getKubectlAIBinaryPath } from '../utils/helper/kubectlAIDownload';
 import * as tmpfile from '../utils/tempfile';
 import path = require('path');
-import { invokeKubectlCommand } from '../utils/kubectl';
+import { invokeKubectlCommandWithoutKubeConfig } from '../utils/kubectl';
+import { ensureDirectoryInPath } from '../utils/env';
 
 var shelljs = require('shelljs');
 const YamlValidator = require('yaml-validator');
 
 enum Command {
-    KubectlAICommand
+    KubectlAICommand,
+    UpdateResourceKubectlAICommand
 }
 
 export async function aksKubectlAIDeploy(
@@ -22,6 +23,13 @@ export async function aksKubectlAIDeploy(
     target: any
 ): Promise<void> {
     await checkTargetAndRunKubectlAICommand(target, Command.KubectlAICommand)
+} 
+
+export async function aksUpdateKubectlAIResource(
+    _context: IActionContext,
+    target: any
+): Promise<void> {
+    await checkTargetAndRunKubectlAICommand(target, Command.UpdateResourceKubectlAICommand)
 }
 
 async function checkTargetAndRunKubectlAICommand(
@@ -47,34 +55,27 @@ async function checkTargetAndRunKubectlAICommand(
         return undefined;
     }
 
-    const clusterInfo = await getKubernetesClusterInfo(target, cloudExplorer, clusterExplorer);
-    if (failed(clusterInfo)) {
-        vscode.window.showErrorMessage(clusterInfo.error);
-        return undefined;
-    }
-
-    await runKubectlAICommand(clusterInfo.result, cmd, kubectl);
+    await runKubectlAICommand(cmd, kubectl);
 }
 
 async function runKubectlAICommand(
-    clusterInfo: KubernetesClusterInfo,
     cmd: Command,
     kubectl: k8s.APIAvailable<k8s.KubectlV1>
 ): Promise<void> {
-    const clustername = clusterInfo.name;
-    const kubeconfig = clusterInfo.kubeconfigYaml;
 
     switch (cmd) {
         case Command.KubectlAICommand:
-            await execKubectlAICommand(clustername, kubeconfig, kubectl);
+            await execKubectlAICommand(kubectl);
+            return;
+        case Command.UpdateResourceKubectlAICommand:
+            await execKubectlAICommand(kubectl, true);;
             return;
     }
 }
 
 async function execKubectlAICommand(
-    clustername: string,
-    clusterConfig: string,
-    kubectl: k8s.APIAvailable<k8s.KubectlV1>) {
+    kubectl: k8s.APIAvailable<k8s.KubectlV1>,
+    isUpdate: boolean = false) {
 
     // Identify the env var: OPENAI_API_KEY exist if not get input for ai key
     console.log(process.env.OPENAI_API_KEY);
@@ -93,8 +94,8 @@ async function execKubectlAICommand(
     }
 
     const command = await vscode.window.showInputBox({
-        placeHolder: `create an nginx deployment with 3 replicas`,
-        prompt: `Describe the manifest you wish to create. Prefix with "reprompt:" to update the open one"`
+        placeHolder: `Create an nginx deployment with 3 replicas Or Update existing nginx deployment with 3 replicas`,
+        prompt: `Describe the manifest you wish to create or update with an existing manifest.`
     });
 
     if (command == undefined) {
@@ -102,14 +103,12 @@ async function execKubectlAICommand(
         return;
     }
 
-    return await runKubectlAIGadgetCommands(clustername, openAIKey!, command, clusterConfig, false, kubectl);
+    return await runKubectlAIGadgetCommands(openAIKey!, command, isUpdate, kubectl);
 }
 
 async function runKubectlAIGadgetCommands(
-    clustername: string,
     aiKey: string,
     command: string,
-    clusterConfig: string,
     rePromptMode: boolean,
     kubectl: k8s.APIAvailable<k8s.KubectlV1>) {
 
@@ -122,26 +121,28 @@ async function runKubectlAIGadgetCommands(
 
     const extensionPath = getExtensionPath();
 
-    await longRunning(`Running kubectl ai command on ${clustername}`,
+    await longRunning(`Running kubectl ai command`,
         async () => {
             let commandToRun = `ai --openai-api-key "${aiKey}" "${command}" --raw`;
 
             const binaryPathDir = path.dirname(kubectlAIPath.result);
 
-            if (process.env.PATH === undefined) {
-                process.env.PATH = binaryPathDir
-            } else if (process.env.PATH.indexOf(binaryPathDir) < 0) {
-                process.env.PATH = binaryPathDir + path.delimiter + process.env.PATH;
-            }
-
-            if (command.startsWith("reprompt:")) {
-                rePromptMode = true;
-            }
+            ensureDirectoryInPath(binaryPathDir)
 
             if (rePromptMode) {
                 const data = vscode.window.activeTextEditor?.document;
                 const activeEditor = vscode.window.activeTextEditor;
                 if (activeEditor) {
+                    const fileName = activeEditor.document.fileName;
+
+                    if (!(fileName.endsWith(".yaml") || fileName.endsWith(".yml"))
+                            && !fileName.startsWith("Untitled-")
+                            && data?.getText() === undefined
+                            && data?.getText() === "") {
+                        vscode.window.showErrorMessage('Invalid file extension or content please make sure you are in a yaml manifest file');
+                        return
+                    }
+
                     const tmpFile = await tmpfile.createTempFile(data?.getText()!, "YAML");
                     validateYaml(tmpFile.filePath);
                     try {
@@ -170,10 +171,7 @@ async function runKubectlAIGadgetCommands(
                 return;
             }
 
-            const kubectlresult = await tmpfile.withOptionalTempFile<Errorable<k8s.KubectlV1.ShellResult>>(
-                clusterConfig, "YAML", async (kubeConfigFile) => {
-                    return await invokeKubectlCommand(kubectl, kubeConfigFile, commandToRun);
-                });
+            const kubectlresult =  await invokeKubectlCommandWithoutKubeConfig(kubectl, commandToRun);
 
             if (failed(kubectlresult)) {
                 vscode.window.showWarningMessage(`kubectl-ai command failed with following error: ${kubectlresult.error}`);
@@ -206,5 +204,6 @@ function validateYaml(filePath: string) {
     };
     const validator = new YamlValidator(options);
     validator.validate([filePath]);
-    validator.report();
+    const validResult = validator.report();
+    console.log(validResult)
 }

@@ -261,7 +261,11 @@
             },
             {
                 "command": "aks.aksKubectlAIDeploy",
-                "title": "Launch Kubectl-AI Prompt"
+                "title": "Generate Resource Spec"
+            },
+            {
+                "command": "aks.aksUpdateKubectlAIResource",
+                "title": "Refine Resource Spec"
             }
         ],
         "menus": {
@@ -495,6 +499,10 @@
             "aks.kubectlAISubMenu": [
                 {
                     "command": "aks.aksKubectlAIDeploy",
+                    "group": "navigation"
+                },
+                {
+                    "command": "aks.aksUpdateKubectlAIResource",
                     "group": "navigation"
                 }
             ]
