@@ -203,6 +203,10 @@
                 "title": "Show In Azure Portal"
             },
             {
+                "command": "aks.aksReconcileCluster",
+                "title": "Reconcile Cluster"
+            },
+            {
                 "command": "aks.clusterProperties",
                 "title": "Show Properties"
             },
@@ -256,6 +260,11 @@
                 },
                 {
                     "command": "aks.showInPortal",
+                    "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i",
+                    "group": "8@3"
+                },
+                {
+                    "command": "aks.aksReconcileCluster",
                     "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i",
                     "group": "8@3"
                 },
