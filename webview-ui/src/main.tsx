@@ -10,6 +10,7 @@ import { Detector } from "./Detector/Detector";
 import { InspektorGadget } from "./InspektorGadget/InspektorGadget";
 import { Kubectl } from "./Kubectl/Kubectl";
 import { AzureServiceOperator } from "./AzureServiceOperator/AzureServiceOperator";
+import { TcpDump } from "./TCPDump/TcpDump";
 
 // There are two modes of launching this application:
 // 1. Via the VS Code extension inside a Webview.
@@ -41,7 +42,8 @@ function getVsCodeContent(): JSX.Element {
         detector: () => <Detector {...vsCodeInitialState} />,
         gadget: () => <InspektorGadget {...vsCodeInitialState} />,
         kubectl: () => <Kubectl {...vsCodeInitialState} />,
-        aso: () => <AzureServiceOperator {...vsCodeInitialState} />
+        aso: () => <AzureServiceOperator {...vsCodeInitialState} />,
+        tcpDump: () => <TcpDump {...vsCodeInitialState} />
     };
 
     return rendererLookup[vscodeContentId]();

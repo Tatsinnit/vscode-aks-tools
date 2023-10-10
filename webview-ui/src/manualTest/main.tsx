@@ -12,6 +12,7 @@ import { getKubectlScenarios } from "./kubectlTests";
 import { ContentId } from "../../../src/webview-contract/webviewTypes";
 import { Scenario } from "../utilities/manualTest";
 import { getASOScenarios } from "./asoTests";
+import { getTCPDumpScenarios } from "./tcpDumpTests";
 
 // There are two modes of launching this application:
 // 1. Via the VS Code extension inside a Webview.
@@ -32,7 +33,8 @@ const contentTestScenarios: Record<ContentId, Scenario[]> = {
     detector: getDetectorScenarios(),
     gadget: getInspektorGadgetScenarios(),
     kubectl: getKubectlScenarios(),
-    aso: getASOScenarios()
+    aso: getASOScenarios(),
+    tcpDump: getTCPDumpScenarios()
 };
 
 const testScenarios = Object.values(contentTestScenarios).flatMap(s => s);
