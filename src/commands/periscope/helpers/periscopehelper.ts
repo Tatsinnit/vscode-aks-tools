@@ -21,10 +21,10 @@ const tmp = require('tmp');
 
 export async function getClusterDiagnosticSettings(
     cluster: AksClusterTreeItem
-): Promise<amon.MonitorManagementModels.DiagnosticSettingsCategoryResourceCollection | undefined> {
+): Promise<amon.DiagnosticSettingsCategoryResourceCollection | undefined> {
     try {
         // Get daignostic setting via diagnostic monitor
-        const diagnosticMonitor = new amon.MonitorManagementClient(cluster.subscription.credentials, cluster.subscription.subscriptionId);
+        const diagnosticMonitor = new amon.MonitorClient(cluster.subscription.credentials, cluster.subscription.subscriptionId);
         const diagnosticSettings = await diagnosticMonitor.diagnosticSettings.list(cluster.id!);
 
         return diagnosticSettings;
@@ -35,7 +35,7 @@ export async function getClusterDiagnosticSettings(
 }
 
 export async function chooseStorageAccount(
-    diagnosticSettings: amon.MonitorManagementModels.DiagnosticSettingsResourceCollection,
+    diagnosticSettings: amon.DiagnosticSettingsResourceCollection,
 ): Promise<string | void> {
     /*
         Check the diagnostic setting is 1 or more than 1:
