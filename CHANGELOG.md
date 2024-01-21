@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.12323.0]
+
+* Test publish yaml with new permission structure.
+
 ## [1.4.0]
 
 * Run Eraser Tool on AKS Cluster.
