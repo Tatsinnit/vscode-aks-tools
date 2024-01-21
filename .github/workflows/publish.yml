@@ -5,7 +5,11 @@ jobs:
   build:
     name: release
     runs-on: ubuntu-latest
-
+    permissions:
+      actions: read
+      contents: read
+      deployments: read
+      packages: none
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -38,12 +42,6 @@ jobs:
         tag_name : ${{ steps.package_version.outputs.current-version}}
         release_name: ${{ steps.package_version.outputs.current-version}}
         body: Publish ${{ steps.changelog_reader.outputs.changes }}
-    - name: Create vsix and publish to marketplace
-      id: create_vsix
-      uses: HaaLeo/publish-vscode-extension@v1
-      with:
-        pat: ${{ secrets.VS_MARKETPLACE_TOKEN }}
-        registryUrl: https://marketplace.visualstudio.com
     - name: Attach vsix to release
       uses: actions/upload-release-asset@v1
       env:
