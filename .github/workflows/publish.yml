@@ -50,7 +50,7 @@ jobs:
         uses: mindsers/changelog-reader-action@32aa5b4c155d76c94e4ec883a223c947b2f02656 # v2.2.3
         with:
             validation_depth: 10
-            version: ${{ steps.JobBuild.outputs.package_version }}
+            version: ${{ needs.JobBuild.outputs.package_version }}
             path: 'CHANGELOG.md'
       - name: Create a Release
         id: create_release
@@ -59,5 +59,5 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
         with:
             tag_name : ${{ needs.JobBuild.outputs.package_version }}
-            release_name: ${{ steps.JobBuild.outputs.current-version}}
+            release_name: ${{ needs.JobBuild.outputs.current-version}}
             body: Publish ${{ steps.changelog_reader.outputs.changes }}
