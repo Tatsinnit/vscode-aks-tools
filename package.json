@@ -2,7 +2,7 @@
     "name": "vscode-aks-tools",
     "displayName": "Azure Kubernetes Service",
     "description": "Display Azure Kubernetes Services within VS Code",
-    "version": "1.4.2",
+    "version": "1.4.3",
     "aiKey": "0c6ae279ed8443289764825290e4f9e2-1a736e7c-1324-4338-be46-fc2a58ae4d14-7255",
     "publisher": "ms-kubernetes-tools",
     "icon": "resources/aks-tools.png",
@@ -144,6 +144,12 @@
                     "default": "v0.0.30",
                     "title": "Draft repository release tag",
                     "description": "Release tag for the stable Draft tool release."
+                },
+                "aks.retinatool.releaseTag": {
+                    "type": "string",
+                    "default": "v0.0.7",
+                    "title": "Retina repository release tag",
+                    "description": "Release tag for the stable Retina tool release."
                 }
             }
         },
@@ -259,6 +265,10 @@
             {
                 "command": "aks.compareCluster",
                 "title": "Compare AKS Cluster"
+            },
+            {
+                "command": "aks.aksRetinaCapture",
+                "title": "Run Retina Capture"
             }
         ],
         "menus": {
@@ -332,18 +342,13 @@
                     "group": "9@3"
                 },
                 {
-                    "command": "aks.aksInspektorGadgetShow",
-                    "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i || view == extension.vsKubernetesExplorer && viewItem =~ /vsKubernetes\\.\\w*cluster$/i",
-                    "group": "9@4"
-                },
-                {
-                    "command": "aks.aksTCPDump",
-                    "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i || view == extension.vsKubernetesExplorer && viewItem =~ /vsKubernetes\\.\\w*cluster$/i",
-                    "group": "9@5"
-                },
-                {
                     "command": "aks.compareCluster",
                     "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.subscription/i"
+                },
+                {
+                    "submenu": "aks.networkTroubleshootingSubMenu",
+                    "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i",
+                    "group": "9@3"
                 }
             ],
             "aks.createClusterSubMenu": [
@@ -400,6 +405,20 @@
                     "group": "navigation"
                 }
             ],
+            "aks.networkTroubleshootingSubMenu": [
+                {
+                    "command": "aks.aksTCPDump",
+                    "group": "navigation"
+                },
+                {
+                    "command": "aks.aksInspektorGadgetShow",
+                    "group": "navigation"
+                },
+                {
+                    "command": "aks.aksRetinaCapture",
+                    "group": "navigation"
+                }
+            ],
             "aks.managedClusterOperationSubMenu": [
                 {
                     "command": "aks.aksDeleteCluster",
@@ -435,6 +454,10 @@
             {
                 "id": "aks.tcpDataCollectionSubMenu",
                 "label": "Collect TCP Dump"
+            },
+            {
+                "id": "aks.networkTroubleshootingSubMenu",
+                "label": "Troubleshoot Network Health"
             }
         ]
     },
