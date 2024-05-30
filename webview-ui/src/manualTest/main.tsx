@@ -1,11 +1,22 @@
 import { StrictMode } from "react";
-import ReactDOM from "react-dom";
-import './vars.css';
-import '../main.css';
+import { createRoot } from "react-dom/client";
+import "./vars.css";
+import "../main.css";
+import "@vscode/codicons/dist/codicon.css";
 import { TestScenarioSelector } from "./TestScenarioSelector/TestScenarioSelector";
 import { getTestStyleViewerScenarios } from "./testStyleViewerTests";
+import { getCreateClusterScenarios } from "./createClusterTests";
 import { getPeriscopeScenarios } from "./periscopeTests";
 import { getDetectorScenarios } from "./detectorTests";
+import { getDraftDeploymentScenarios, getDraftDockerfileScenarios, getDraftWorkflowScenarios } from "./draft";
+import { getInspektorGadgetScenarios } from "./inspektorGadgetTests";
+import { getKubectlScenarios } from "./kubectlTests";
+import { ContentId } from "../../../src/webview-contract/webviewTypes";
+import { Scenario } from "../utilities/manualTest";
+import { getASOScenarios } from "./asoTests";
+import { getClusterPropertiesScenarios } from "./clusterPropertiesTests";
+import { getTCPDumpScenarios } from "./tcpDumpTests";
+import { getRetinaCaptureScenarios } from "./retinaCaptureTests";
 
 // There are two modes of launching this application:
 // 1. Via the VS Code extension inside a Webview.
@@ -18,27 +29,28 @@ import { getDetectorScenarios } from "./detectorTests";
 //   dispatching `message` events to the `window` object so that application components can listen to them in the same way.
 
 const rootElem = document.getElementById("root");
+const root = createRoot(rootElem!);
 
-const testScenarios = [
-    ...getTestStyleViewerScenarios(),
-    ...getPeriscopeScenarios(),
-    ...getDetectorScenarios()
-];
+const contentTestScenarios: Record<ContentId, Scenario[]> = {
+    style: getTestStyleViewerScenarios(),
+    clusterProperties: getClusterPropertiesScenarios(),
+    createCluster: getCreateClusterScenarios(),
+    periscope: getPeriscopeScenarios(),
+    detector: getDetectorScenarios(),
+    draftDeployment: getDraftDeploymentScenarios(),
+    draftDockerfile: getDraftDockerfileScenarios(),
+    draftWorkflow: getDraftWorkflowScenarios(),
+    gadget: getInspektorGadgetScenarios(),
+    kubectl: getKubectlScenarios(),
+    aso: getASOScenarios(),
+    tcpDump: getTCPDumpScenarios(),
+    retinaCapture: getRetinaCaptureScenarios(),
+};
 
-const testScenarioNames = testScenarios.map(f => f.name);
+const testScenarios = Object.values(contentTestScenarios).flatMap((s) => s);
 
-ReactDOM.render(
+root.render(
     <StrictMode>
-        <TestScenarioSelector testScenarioNames={testScenarioNames} onTestScenarioChange={handleTestScenarioChange} />
+        <TestScenarioSelector scenarios={testScenarios} />
     </StrictMode>,
-    rootElem
 );
-
-function handleTestScenarioChange(name: string): JSX.Element {
-    const scenario = testScenarios.find(f => f.name === name);
-    if (!scenario) {
-        throw new Error(`Test scenario '${name}' not found.`);
-    }
-
-    return scenario.factory();
-}

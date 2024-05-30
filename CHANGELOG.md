@@ -1,5 +1,137 @@
 # Change Log
 
+## [1.4.5]
+
+* Fix treeview stuck with only 'select tenant' node.
+* Add Draft Dockerfile, Deployment and Workflow commands.
+* Fix bump vscode 1.89 update.
+* Dependabot updates and bumps.
+
+Thank you so much to @peterbom, @qpetraroia, @hsubramanianaks for Draft work, testing this and for review comments.
+
+## [1.4.4]
+
+* Azure Account Sign-In Changes.
+* Dependabot updates and bumps.
+
+Thank you so much @peterbom for continued effort login improvement, thanks you so much to @qpetraroia,   @hsubramanianaks for testing this and for comments, special mention to both @TylerLeonhardt and @alexweininger for collaborations. Thanks all for our other BAU contributors.
+
+## [1.4.3]
+
+* Retina integration with VsCode.
+* In-house download replacement implementation.
+* Show-properties page k8s version is now available with deprecated warning.
+* Dependabot updates and bumps.
+
+Thank you so much @sprab for continued effort for Retina User-Sceanrios testing changes, thanks you so much to  @hsubramanianaks for Retina help and U/X changes, thanks to, @sprab, @hsubramanianaks, & @peterbom for comments and testing. Thank you @rbtr and @vakalapa for async Retina Fixes and for `0.0.7` release. Thanks all for our other BAU contributors.
+
+## [1.4.2]
+
+* Show Properties page new feature for help information with k8s version deprecated available .
+* Replace download package with more in-house implementation.
+* Eslint improvement, Inspektor Gadget update.
+* Handle new archive structure for IG in windows.
+* Dependabot updates.
+
+Thank you so much @sprab for continued effort for testing changes, thanks you, @peterbom & our other BAU contributors.
+
+## [1.4.1]
+
+* Fix for making instance when cluster name is same but RG are different.
+* Changes in correlation with new GH Action Permission Changes.
+* Add badge for codeql and chai test fix.
+* Add codeql analysis for repo.
+* Add bestpractices progress and other badges.
+* Dependabot updates.
+
+Thank you so much @sprab for continued effort for testing changes for unique name fix and testing other feature, thanks @hsubramanianaks, @peterbom for reviews, collaboration. Thank you everyone who indirectly helped in building in any ideas for this release!
+
+## [1.4.0]
+
+* Run Eraser Tool on AKS Cluster.
+* Add refreshSubscription command to aksCreateCluster and aksDeleteCluster.
+* Refactor AzureAccountTreeItem and related files.
+* Simplify webview dev task problem matcher.
+* Refresh subscription.
+* Update launch.json and tasks.json for webpack-dev.
+* Use new telemetry library.
+* Support telemetry for commands from webviews.
+* Dependabot updates.
+
+Thank you so much @sprab, @peterbom for feature work, collaboration and making this tool continuously better. Thank you everyone who indirectly helped in building in any ideas for this release!
+
+## [1.3.18]
+
+* Compare 2 AKS Cluster.
+* Add Filters to TCP Dump.
+* Enhance Create Cluster and designed U/X experience.
+* Refactors like Portal URL, Fixing Old Dependencies, Occassional Errors for npm.
+* Add outfiles to webview UI launch config.
+* Update vscode engine and vscode type for this repo.
+
+Thank you so much to our awesome designer help by @ivelisseca and to @sprab, @peterbom, @hsubramanianaks and @qpetraroia. Special thanks to countless folks who reach out to us and help us in improving with ideas. I would also extend huge thanks to indirect collaboration for tcp-dump enhanced filter with Qi, Prabha, Tom, June, Yi, Weinong's email, Thank you all for your ideas!
+
+## [1.3.17]
+
+* Upgrade azext-utils and related packages.
+* Feature: agent pool abort last operation.
+* Feature: abort/reconcile cluster operation in show properties page.
+* Fix the filePath as empty issue. (TCP Dump Issue)
+* Fix vscode engine update.
+* Add dependabot file.
+* Dependabot updates.
+* Clean up unused or unnecessary dependencies.
+
+Collaborations and thanks to @peterbom.
+
+## [1.3.16]
+
+* Collect TCP Dump.
+* Move last webview (cluster properties) to webview project.
+* Simplify state management for new webviews.
+* Reconcile cluster using update.
+* Download Draft Binaries PR.
+* Remove deprecated React function call and update webview-ui dependencies.
+* Dependent bot updates.
+
+Thank you so much to @peterbom, @sprab, @hsubramanianaks and @qpetraroia. Special thanks to countless folks who reach out to us and help us in improving with ideas. I would also extend huge thanks to indirect collaboration with Qi, June, Suli, Yi, Tom, Indu, Sri, Prabha, Thank you all for your ideas and collaboration! 
+
+## [1.3.15]
+
+* Avoid lengthy kubectl output changing the layout of containing elements.
+* Handle explicit state for poller.
+* Abort last operation on cluster.
+* Remove the unsed method.
+* Implement Create Cluster as WebView.
+* Add state management.
+* Update ASO version and move to webview-ui project.
+* Fix comon id issue.
+* Default branch is now main.
+* Move kubectl commands to webview.
+
+Thank you so much to @peterbom, @hsubramanianaks and @qpetraroia. Special thanks to countless folks who reach out to us and help us in improving with ideas. I would also extend huge thanks to indirect collaboration with Qi, June, Yi, Tom, Indu, Sri, Prabha, Chase, Thank you all for your ideas! 
+
+## [1.3.14]
+
+* Update Kubelogin version to use latest.
+* Upgrade ARM resources library.
+* Feature welcome workflow.
+* Feature customise kubectl command.
+* Simplify definitions of messages and handlers for webviews.
+* Fix debug background task problem matcher.
+* Reorganize type structure of webview definitions.
+* Move all Inspektor Gadget commands to single Webview.
+
+Thank you so much to @peterbom, @hsubramanianaks and @qpetraroia.
+
+## [1.3.13]
+
+* Enabling create cluster.
+* Add webview component for detectors.
+* Fix spelling of "snapshot" in menus.
+
+Thank you so much to @FineTralfazz, @rzhang628, @peterbom, @gambtho and @qpetraroia.
+
 ## [1.3.12]
 
 * Remove unnecessary kubelogin download.

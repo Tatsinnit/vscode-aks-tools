@@ -4,31 +4,35 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "webpack-dev",
+            "type": "npm",
+            "script": "webpack-dev",
+            "problemMatcher": "$ts-webpack-watch",
+            "isBackground": true,
+        },
+        {
+            "label": "webpack",
+            "type": "npm",
+            "script": "webpack"
+        },
+        {
+            "label": "test-compile",
+            "type": "npm",
+            "script": "test-compile"
+        },
+        {
             "label": "dev:webview",
             "type": "npm",
             "script": "dev:webview",
-            "problemMatcher": [
-                {
-                    "background": {
-                        "activeOnStart": false,
-                        "beginsPattern": "npm run dev",
-                        "endsPattern": "➜  Local:"
-                    },
-                    "pattern": [
-                        {
-                            "regexp": "(ERROR|WARNING)\\(TypeScript\\)  (.*)",
-                            "severity": 1,
-                            "message": 2
-                        },
-                        {
-                            "regexp": "^ FILE  (.*):(\\d*):(\\d*)$",
-                            "file": 1,
-                            "line": 2,
-                            "column": 3
-                        }
-                    ]
+            "problemMatcher": {
+                "base": "$tsc-watch",
+                "fileLocation": "absolute",
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^(?:.* page reload |\\[TypeScript\\]).*",
+                    "endsPattern": "^.*\\[TypeScript\\].*"
                 }
-            ],
+            },
             "isBackground": true,
             "presentation": {
                 "reveal": "never"

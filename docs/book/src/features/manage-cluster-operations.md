@@ -4,5 +4,7 @@
 
 Right click on your AKS cluster and click on **Managed Cluster Operations** to easily run few managed cluster operations on your cluster. Currently we have enable following operations:
 
+- Abort Last Operation
 - Delete Cluster
+- Reconcile Cluster
 - Rotate Cluster Certificate

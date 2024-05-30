@@ -1,0 +1,22 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      typescript-eslint:
+        patterns:
+          - "@typescript-eslint/*"
+  - package-ecosystem: "npm"
+    directory: "/webview-ui"
+    schedule:
+      interval: "weekly"
+    groups:
+      typescript-eslint:
+        patterns:
+          - "@typescript-eslint/*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

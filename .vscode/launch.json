@@ -18,7 +18,7 @@
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
             ],
-            "preLaunchTask": "npm: webpack"
+            "preLaunchTask": "webpack-dev"
         },
         {
             "name": "Extension Tests",
@@ -27,12 +27,12 @@
             "runtimeExecutable": "${execPath}",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}",
-                "--extensionTestsPath=${workspaceFolder}/out/tests/suite/index"
+                "--extensionTestsPath=${workspaceFolder}/out/src/tests/suite/index"
             ],
             "outFiles": [
-                "${workspaceFolder}/out/tests/**/*.js"
+                "${workspaceFolder}/out/src/tests/**/*.js"
             ],
-            "preLaunchTask": "npm: test-compile"
+            "preLaunchTask": "test-compile"
         },
         {
             "name": "Webview UI",
@@ -40,6 +40,9 @@
             "request": "launch",
             "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}/webview-ui",
+            "outFiles": [
+                "${workspaceFolder}/webview-ui/dist/**/*.js"
+            ],
             "preLaunchTask": "dev:webview"
         }
     ]

@@ -1,49 +1,56 @@
 import { Uri } from "vscode";
-import { MessageSink, MessageSubscriber } from "../webview-contract/messaging";
-import { DetectorTypes } from "../webview-contract/webviewTypes";
+import { MessageHandler } from "../webview-contract/messaging";
+import {
+    CategoryDetectorARMResponse,
+    InitialState,
+    SingleDetectorARMResponse,
+    ToVsCodeMsgDef,
+} from "../webview-contract/webviewDefinitions/detector";
 import { BasePanel, PanelDataProvider } from "./BasePanel";
-const meta = require('../../package.json');
+import { getPortalUrl } from "../commands/utils/detectors";
+import { Environment } from "@azure/ms-rest-azure-env";
+import { TelemetryDefinition } from "../webview-contract/webviewTypes";
 
-export class DetectorPanel extends BasePanel<DetectorTypes.InitialState, never, never> {
+export class DetectorPanel extends BasePanel<"detector"> {
     constructor(extensionUri: Uri) {
-        super(extensionUri, DetectorTypes.contentId);
+        super(extensionUri, "detector", {});
     }
 }
 
-export class DetectorDataProvider implements PanelDataProvider<DetectorTypes.InitialState, never, never> {
+export class DetectorDataProvider implements PanelDataProvider<"detector"> {
     public constructor(
+        readonly environment: Environment,
         readonly clusterName: string,
-        readonly categoryDetector: DetectorTypes.CategoryDetectorARMResponse,
-        readonly detectors: DetectorTypes.SingleDetectorARMResponse[]
+        readonly categoryDetector: CategoryDetectorARMResponse,
+        readonly detectors: SingleDetectorARMResponse[],
     ) {
         this.detectorName = categoryDetector.properties.metadata.name;
         this.detectorDescription = categoryDetector.properties.metadata.description;
-        this.clusterArmId = getClusterArmId(categoryDetector);
+        this.detectorPortalUrl = getPortalUrl(environment, categoryDetector);
     }
 
-    readonly detectorName: string
-    readonly detectorDescription: string
-    readonly clusterArmId: string
+    readonly detectorName: string;
+    readonly detectorDescription: string;
+    readonly detectorPortalUrl: string;
 
     getTitle(): string {
         return `${this.detectorName} diagnostics for ${this.clusterName}`;
     }
 
-    getInitialState(): DetectorTypes.InitialState {
+    getInitialState(): InitialState {
         return {
             name: this.clusterName,
             description: this.detectorDescription,
-            clusterArmId: this.clusterArmId,
-            portalReferrerContext: meta.name,
-            detectors: this.detectors
+            portalDetectorUrl: this.detectorPortalUrl,
+            detectors: this.detectors,
         };
     }
 
-    createSubscriber(_webview: MessageSink<never>): MessageSubscriber<never> | null {
-        return null;
+    getTelemetryDefinition(): TelemetryDefinition<"detector"> {
+        return {};
     }
-}
 
-function getClusterArmId(response: DetectorTypes.ARMResponse<any>): string {
-    return response.id.split('detectors')[0];
+    getMessageHandler(): MessageHandler<ToVsCodeMsgDef> {
+        return {};
+    }
 }

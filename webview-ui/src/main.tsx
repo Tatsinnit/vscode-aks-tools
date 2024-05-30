@@ -1,11 +1,20 @@
 import { StrictMode } from "react";
-import ReactDOM from "react-dom";
-import './main.css';
+import { createRoot } from "react-dom/client";
+import "./main.css";
+import "@vscode/codicons/dist/codicon.css";
 import { decodeState } from "../../src/webview-contract/initialState";
-import * as ContractTypes from "../../src/webview-contract/webviewTypes";
+import { CreateCluster } from "./CreateCluster/CreateCluster";
+import { ContentId } from "../../src/webview-contract/webviewTypes";
 import { TestStyleViewer } from "./TestStyleViewer/TestStyleViewer";
 import { Periscope } from "./Periscope/Periscope";
 import { Detector } from "./Detector/Detector";
+import { InspektorGadget } from "./InspektorGadget/InspektorGadget";
+import { Kubectl } from "./Kubectl/Kubectl";
+import { AzureServiceOperator } from "./AzureServiceOperator/AzureServiceOperator";
+import { ClusterProperties } from "./ClusterProperties/ClusterProperties";
+import { TcpDump } from "./TCPDump/TcpDump";
+import { RetinaCapture } from "./RetinaCapture/RetinaCapture";
+import { DraftDeployment, DraftDockerfile, DraftWorkflow } from "./Draft";
 
 // There are two modes of launching this application:
 // 1. Via the VS Code extension inside a Webview.
@@ -19,28 +28,38 @@ import { Detector } from "./Detector/Detector";
 //   and will respond using `Webview.postMessage`.
 
 const rootElem = document.getElementById("root");
+const root = createRoot(rootElem!);
 
 function getVsCodeContent(): JSX.Element {
     if (!rootElem) {
-        return <>Error: Element with ID 'root' is not found.</>;
+        return <>Error: Element with ID &#39;root&#39; is not found.</>;
     }
-    const vscodeContentId = rootElem?.dataset.contentid;
+    const vscodeContentId = rootElem?.dataset.contentid as ContentId;
     if (!vscodeContentId) {
-        return <>Error: 'content-id' attribute is not set on root element.</>;
+        return <>Error: &#39;content-id&#39; attribute is not set on root element.</>;
     }
 
-    const vsCodeInitialState = decodeState<any>(rootElem?.dataset.initialstate);
-    switch (vscodeContentId) {
-        case ContractTypes.TestStyleViewerTypes.contentId: return <TestStyleViewer {...vsCodeInitialState} />
-        case ContractTypes.PeriscopeTypes.contentId: return <Periscope {...vsCodeInitialState} />
-        case ContractTypes.DetectorTypes.contentId: return <Detector {...vsCodeInitialState} />
-        default: return <>`Error: Unexpected content ID: '${vscodeContentId}'`</>;
+    function getInitialState<T>(): T {
+        return decodeState<T>(rootElem?.dataset.initialstate);
     }
+
+    const rendererLookup: Record<ContentId, () => JSX.Element> = {
+        createCluster: () => <CreateCluster {...getInitialState()} />,
+        style: () => <TestStyleViewer {...getInitialState()} />,
+        clusterProperties: () => <ClusterProperties {...getInitialState()} />,
+        periscope: () => <Periscope {...getInitialState()} />,
+        detector: () => <Detector {...getInitialState()} />,
+        draftDeployment: () => <DraftDeployment {...getInitialState()} />,
+        draftDockerfile: () => <DraftDockerfile {...getInitialState()} />,
+        draftWorkflow: () => <DraftWorkflow {...getInitialState()} />,
+        gadget: () => <InspektorGadget {...getInitialState()} />,
+        kubectl: () => <Kubectl {...getInitialState()} />,
+        aso: () => <AzureServiceOperator {...getInitialState()} />,
+        tcpDump: () => <TcpDump {...getInitialState()} />,
+        retinaCapture: () => <RetinaCapture {...getInitialState()} />,
+    };
+
+    return rendererLookup[vscodeContentId]();
 }
 
-ReactDOM.render(
-    <StrictMode>
-        {getVsCodeContent()}
-    </StrictMode>,
-    rootElem
-);
+root.render(<StrictMode>{getVsCodeContent()}</StrictMode>);

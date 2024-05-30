@@ -1,28 +1,38 @@
-import { MessageSubscriber } from "../../../src/webview-contract/messaging";
-import { TestStyleViewerTypes } from "../../../src/webview-contract/webviewTypes";
+import { MessageHandler } from "../../../src/webview-contract/messaging";
+import {
+    CssRule,
+    InitialState,
+    ToVsCodeMsgDef,
+} from "../../../src/webview-contract/webviewDefinitions/testStyleViewer";
 import { Scenario } from "./../utilities/manualTest";
-import { getTestVscodeMessageContext } from "./../utilities/vscode";
 import { TestStyleViewer } from "./../TestStyleViewer/TestStyleViewer";
+import { stateUpdater } from "../TestStyleViewer/state";
 
 export function getTestStyleViewerScenarios() {
-    const webview = getTestVscodeMessageContext<TestStyleViewerTypes.ToWebViewCommands, TestStyleViewerTypes.ToVsCodeCommands>();
-    const subscriber = MessageSubscriber.create<TestStyleViewerTypes.ToVsCodeCommands>()
-        .withHandler("reportCssVars", handleReportCssVars)
-        .withHandler("reportCssRules", handleReportCssRules);
+    const messageHandler: MessageHandler<ToVsCodeMsgDef> = {
+        reportCssRules: (args) => handleReportCssRules(args.rules),
+        reportCssVars: (args) => handleReportCssVars(args.cssVars),
+    };
 
-    function handleReportCssVars(message: TestStyleViewerTypes.ReportCssVars) {
-        console.log(message.cssVars.join('\n'));
+    function handleReportCssVars(cssVars: string[]) {
+        console.log(cssVars.join("\n"));
     }
 
-    function handleReportCssRules(message: TestStyleViewerTypes.ReportCssRules) {
-        console.log(message.rules.map(r => r.text).join('\n'));
+    function handleReportCssRules(rules: CssRule[]) {
+        console.log(rules.map((r) => r.text).join("\n"));
     }
 
-    const initialState: TestStyleViewerTypes.InitialState = {
-        isVSCode: false
+    const initialState: InitialState = {
+        isVSCode: false,
     };
 
     return [
-        Scenario.create(TestStyleViewerTypes.contentId, () => <TestStyleViewer {...initialState} />).withSubscription(webview, subscriber)
+        Scenario.create(
+            "style",
+            "",
+            () => <TestStyleViewer {...initialState} />,
+            () => messageHandler,
+            stateUpdater.vscodeMessageHandler,
+        ),
     ];
 }
