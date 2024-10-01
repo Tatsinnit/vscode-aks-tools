@@ -157,6 +157,10 @@
                     "default": "v0.0.7",
                     "title": "Retina repository release tag",
                     "description": "Release tag for the stable Retina tool release."
+                },
+                "vs-kubernetes.enable-ai-recommendations": {
+                    "type": "boolean",
+                    "description": "Set to true to enable GH Copilot hook."
                 }
             }
         },

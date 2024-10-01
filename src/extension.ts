@@ -47,6 +47,7 @@ import { Reporter, reporter } from "./commands/utils/reporter";
 import { AksClusterTreeNode } from "./tree/aksClusterTreeItem";
 import { createAzureAccountTreeItem } from "./tree/azureAccountTreeItem";
 import { AzureResourceNodeContributor } from "./tree/azureResourceNodeContributor";
+import { setAIRecommendationsInfoState } from "./commands/utils/config";
 
 export async function activate(context: vscode.ExtensionContext) {
     const cloudExplorer = await k8s.extension.cloudExplorer.v1;
@@ -74,6 +75,19 @@ export async function activate(context: vscode.ExtensionContext) {
                 category: "ms-kubernetes-tools.vscode-aks-tools#aksvscodewalkthrough",
             });
         }
+        // Sample user prompt to enable the Azure Kubernetes Service GH CoPilot Feature
+        const value = await vscode.window.showInformationMessage(
+            `Do you want to enable the Azure Kubernetes Service GH CoPilot Feature?`,
+            "Yes",
+            "No",
+        );
+        if (value === "Yes") {
+            setAIRecommendationsInfoState(true);
+        }
+        if (value === "No") {
+            setAIRecommendationsInfoState(false);
+        }
+
         registerCommandWithTelemetry("aks.signInToAzure", signInToAzure);
         registerCommandWithTelemetry("aks.selectTenant", selectTenant);
         registerCommandWithTelemetry("aks.selectSubscriptions", selectSubscriptions);

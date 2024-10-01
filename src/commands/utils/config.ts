@@ -7,6 +7,8 @@ import { RetinaDownloadConfig } from "../periscope/models/RetinaDownloadConfig";
 import { isObject } from "./runtimeTypes";
 import { Environment, EnvironmentParameters } from "@azure/ms-rest-azure-env";
 
+const EXTENSION_CONFIG_KEY = "vs-kubernetes";
+
 export function getConfiguredAzureEnv(): Environment {
     // See:
     // https://github.com/microsoft/vscode/blob/eac16e9b63a11885b538db3e0b533a02a2fb8143/extensions/microsoft-authentication/package.json#L40-L99
@@ -228,4 +230,56 @@ export async function deleteKubectlCustomCommand(name: string) {
     await vscode.workspace
         .getConfiguration()
         .update("azure.customkubectl.commands", commands, vscode.ConfigurationTarget.Global, true);
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ConfigUpdater<T> = (
+    configKey: string,
+    value: T,
+    scope: vscode.ConfigurationTarget,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    valueAtScope: any,
+    createIfNotExist: boolean,
+) => Promise<void>;
+
+async function atAllConfigScopes<T>(fn: ConfigUpdater<T>, configKey: string, value: T): Promise<void> {
+    const config = vscode.workspace.getConfiguration().inspect(EXTENSION_CONFIG_KEY)!;
+    await fn(configKey, value, vscode.ConfigurationTarget.Global, config.globalValue, true);
+    await fn(configKey, value, vscode.ConfigurationTarget.Workspace, config.workspaceValue, false);
+    await fn(configKey, value, vscode.ConfigurationTarget.WorkspaceFolder, config.workspaceFolderValue, false);
+}
+
+export function getAIRecommendationsInfoState(): boolean | undefined {
+    return vscode.workspace.getConfiguration(EXTENSION_CONFIG_KEY)["vs-kubernetes.enable-ai-recommendations"];
+}
+
+export function setAIRecommendationsInfoState(selectedoption: boolean): void {
+    setConfigValue("vs-kubernetes.enable-ai-recommendations", selectedoption);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function setConfigValue(configKey: string, value: any): Promise<void> {
+    await atAllConfigScopes(addValueToConfigAtScope, configKey, value);
+}
+
+async function addValueToConfigAtScope(
+    configKey: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    value: any,
+    scope: vscode.ConfigurationTarget,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    valueAtScope: any,
+    createIfNotExist: boolean,
+): Promise<void> {
+    if (!createIfNotExist) {
+        if (!valueAtScope || !valueAtScope[configKey]) {
+            return;
+        }
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let newValue: any = {};
+    if (valueAtScope) {
+        newValue = Object.assign({}, valueAtScope);
+    }
+    newValue[configKey] = value;
+    await vscode.workspace.getConfiguration().update(EXTENSION_CONFIG_KEY, newValue, scope);
 }
