@@ -1,5 +1,20 @@
 # Change Log
 
+## [1.5.5]
+
+* Right Click Draft Validate.
+* Dependabot updates and bumps.
+
+Thank you so much to @ReinierCC, @hsubramanianaks, @tejhan, @qpetraroia, @Tatsinnit for contributions, testing and reviews.
+
+## [1.5.4]
+
+* Add node os upgrade channel.
+* Adding refresh option to cluster properties page.
+* Dependabot updates and bumps.
+
+Thank you so much to @hsubramanianaks, @tejhan, @qpetraroia, @ReinierCC, @Tatsinnit for contributions, testing and reviews.
+
 ## [1.5.3]
 
 * KAITO - Model Management & Chat Features.
