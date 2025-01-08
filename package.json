@@ -585,10 +585,6 @@
             {
                 "id": "aks.kaitoInstallSubMenu",
                 "label": "Deploy a LLM with KAITO"
-            },
-            {
-                "id": "aks.fleetMangerSubMenu",
-                "label": "Fleet Manager"
             }
         ]
     },
