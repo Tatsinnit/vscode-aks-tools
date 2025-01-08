@@ -331,10 +331,6 @@
             {
                 "command": "aks.aksKaitoTest",
                 "title": "Test KAITO models"
-            },
-            {
-                "command": "aks.aksCreateFleet",
-                "title": "Create Fleet"
             }
         ],
         "menus": {
@@ -446,10 +442,6 @@
                     "submenu": "aks.kaitoInstallSubMenu",
                     "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.cluster/i",
                     "group": "9@3"
-                },
-                {
-                    "submenu": "aks.fleetMangerSubMenu",
-                    "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.subscription/i"
                 }
             ],
             "aks.createClusterSubMenu": [
@@ -547,12 +539,6 @@
                 },
                 {
                     "command": "aks.aksReconcileCluster",
-                    "group": "navigation"
-                }
-            ],
-            "aks.fleetMangerSubMenu": [
-                {
-                    "command": "aks.aksCreateFleet",
                     "group": "navigation"
                 }
             ]

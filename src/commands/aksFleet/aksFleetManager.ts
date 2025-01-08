@@ -38,6 +38,26 @@ export default async function aksCreateFleet(_context: IActionContext, target: u
         return;
     }
 
-    const client = new ContainerServiceFleetClient(getCredential(sessionProvider.result), subscriptionId);
-    createFleet(client, "junyuqian", "vscode-fleet", { location: "Australia East" });
+    // Temporary code for incremental check-in.
+    // TODO: Replace hardcoded values with dynamic parameters or configuration settings.
+
+    // Initialize the ContainerServiceFleetClient with session credentials and subscription ID.
+    // Hardcoded 'subscriptionId' should be parameterized in future updates.
+    const client = new ContainerServiceFleetClient(
+        getCredential(sessionProvider.result), // Retrieve credentials from session provider.
+        subscriptionId, // TODO: Ensure subscriptionId is dynamically passed or configured.
+    );
+
+    // Create a fleet using hardcoded parameters.
+    // TODO: Replace hardcoded 'junyuqian', 'vscode-fleet', and 'Australia East' with configurable inputs.
+    createFleet(
+        client,
+        "Fleet-Resrource-Name", // Fleet resource group name (hardcoded).
+        "Fleet-Name", // Fleet name (hardcoded).
+        { location: "Australia East" }, // Location (hardcoded).
+    );
+
+    // NOTE: This temporary implementation assumes static context for testing purposes.
+    // Ensure these hardcoded values are replaced with appropriate dynamic configurations
+    // before finalizing this code for production level work which will be user focused.
 }
