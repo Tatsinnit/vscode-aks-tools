@@ -49,10 +49,10 @@ export default async function aksCreateFleet(_context: IActionContext, target: u
     );
 
     // Create a fleet using hardcoded parameters.
-    // TODO: Replace hardcoded 'junyuqian', 'vscode-fleet', and 'Australia East' with configurable inputs.
+    // TODO: Replace hardcoded 'Fleet-Resource-Name', 'Fleet-Name', and 'Australia East' with configurable inputs.
     createFleet(
         client,
-        "Fleet-Resrource-Name", // Fleet resource group name (hardcoded).
+        "Fleet-Resource-Name", // Fleet resource group name (hardcoded).
         "Fleet-Name", // Fleet name (hardcoded).
         { location: "Australia East" }, // Location (hardcoded).
     );
