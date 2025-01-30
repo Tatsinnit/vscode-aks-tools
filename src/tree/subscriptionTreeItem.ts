@@ -19,6 +19,7 @@ import {
 } from "../commands/utils/azureResources";
 import { failed } from "../commands/utils/errorable";
 import { ReadyAzureSessionProvider } from "../auth/types";
+import { getFilteredClusters } from "../commands/utils/config";
 
 // The de facto API of tree nodes that represent individual Azure subscriptions.
 // Tree items should implement this interface to maintain backward compatibility with previous versions of the extension.
