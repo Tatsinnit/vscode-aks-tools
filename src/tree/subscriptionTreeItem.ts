@@ -5,20 +5,16 @@ import {
     ISubscriptionContext,
 } from "@microsoft/vscode-azext-utils";
 import { createClusterTreeNode } from "./aksClusterTreeItem";
-import { createFleetTreeNode, FleetTreeNode } from "./fleetTreeItem";
 import { assetUri } from "../assets";
 import * as k8s from "vscode-kubernetes-tools-api";
 import { window } from "vscode";
 import {
     clusterResourceType,
-    fleetResourceType,
     getResources,
-    getFleetMembers,
-    DefinedResourceWithGroup,
-    DefinedFleetMemberWithGroup,
 } from "../commands/utils/azureResources";
 import { failed } from "../commands/utils/errorable";
 import { ReadyAzureSessionProvider } from "../auth/types";
+import { getFilteredClusters } from "../commands/utils/config";
 
 // The de facto API of tree nodes that represent individual Azure subscriptions.
 // Tree items should implement this interface to maintain backward compatibility with previous versions of the extension.
@@ -93,73 +89,30 @@ class SubscriptionTreeItem extends AzExtParentTreeItem implements SubscriptionTr
             throw clusterResourcesPromise.error;
         }
 
-        const fleetResourcesPromise = await getResources(this.sessionProvider, this.subscriptionId, fleetResourceType);
-        if (failed(fleetResourcesPromise)) {
-            window.showErrorMessage(
-                `Failed to list fleets in subscription ${this.subscriptionId}: ${fleetResourcesPromise.error}`,
-            );
-            throw fleetResourcesPromise.error;
-        }
-
-        return { clusterResources: clusterResourcesPromise.result, fleetResources: fleetResourcesPromise.result };
-    }
-
-    private async mapFleetAndClusterMembers(fleetResources: DefinedResourceWithGroup[]) {
-        const fleetToMembersMap = new Map<string, DefinedFleetMemberWithGroup[]>();
-        const clusterToMemberMap = new Map<string, DefinedFleetMemberWithGroup>();
-
-        const memberPromises = fleetResources.map(async (f) => {
-            const members = await getFleetMembers(this.sessionProvider, f);
-            if (failed(members)) {
-                window.showErrorMessage(
-                    `Failed to list fleets in subscription ${this.subscriptionId}: ${members.error}`,
+        const getClusterFilter = getFilteredClusters();
+        return clusterResources.result
+            .map((r) => {
+                // Check if the subscription is in the filter for SeelctedClustersFilter
+                const isSubIdExistInClusterFilter = getClusterFilter.some(
+                    (filter) => filter.subscriptionId === this.subscriptionId,
                 );
-                return null;
-            }
-            fleetToMembersMap.set(f.id, members.result); // key - fleet.id, val: fleet.memberClusters list
-            return members.result;
-        });
-        await Promise.all(memberPromises); // wait for all members to be fetched
 
-        fleetToMembersMap.forEach((members) => {
-            members.forEach((member) => {
-                clusterToMemberMap.set(member.clusterResourceId.toLowerCase(), member);
-            });
-        });
+                // Ensure getClusterFilter is an array of objects with name and subid properties
+                if (isSubIdExistInClusterFilter) {
+                    // Check if there's a match for the cluster name and subid
+                    const matchedCluster = getClusterFilter.find(
+                        (filter) => filter.clusterName === r.name && filter.subscriptionId === this.subscriptionId,
+                    );
 
-        return { fleetToMembersMap, clusterToMemberMap };
-    }
-
-    public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
-        let clusterResources: DefinedResourceWithGroup[] = [];
-        let fleetResources: DefinedResourceWithGroup[] = [];
-        ({ clusterResources, fleetResources } = await this.fetchClustersAndFleets());
-        const { fleetToMembersMap, clusterToMemberMap } = await this.mapFleetAndClusterMembers(fleetResources);
-
-        // remove clusters that are members of fleets
-        clusterResources = clusterResources.filter((r) => !clusterToMemberMap.has(r.id.toLowerCase()));
-
-        const fleetTreeNodes = new Map<string, FleetTreeNode>();
-        const clusterTreeItems = new Map<string, AzExtTreeItem>();
-        fleetResources.concat(clusterResources).forEach((r) => {
-            if (r.type?.toLocaleLowerCase() === "microsoft.containerservice/fleets") {
-                const fleetTreeItem = createFleetTreeNode(this, this.subscriptionId, r);
-                fleetTreeItem.addCluster(fleetToMembersMap.get(r.id) || []);
-                fleetTreeNodes.set(r.id, fleetTreeItem);
-                return fleetTreeItem;
-            } else if (r.type?.toLocaleLowerCase() === "microsoft.containerservice/managedclusters") {
-                const cluster = createClusterTreeNode(this, this.subscriptionId, r);
-                clusterTreeItems.set(r.id, cluster);
-                return clusterTreeItems;
-            } else {
-                window.showErrorMessage(`unexpected type ${r.type} in resources list`);
-            }
-            return [];
-        });
-        // cast via unknown because I know it's ok.
-        // probably me making a mess with types. fix later.
-        const fleetTreeItems = Array.from(fleetTreeNodes.values()).map((f) => f as unknown as AzExtTreeItem);
-        return Promise.resolve([...fleetTreeItems.values(), ...clusterTreeItems.values()]);
+                    if (matchedCluster) {
+                        return createClusterTreeNode(this, this.subscriptionId, r);
+                    }
+                } else {
+                    return createClusterTreeNode(this, this.subscriptionId, r);
+                }
+                return undefined;
+            })
+            .filter((node) => node !== undefined) as AzExtTreeItem[];
     }
 
     public async refreshImpl(): Promise<void> {
