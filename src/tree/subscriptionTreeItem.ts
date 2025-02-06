@@ -14,8 +14,7 @@ import {
 } from "../commands/utils/azureResources";
 import { failed } from "../commands/utils/errorable";
 import { ReadyAzureSessionProvider } from "../auth/types";
-import { getFilteredClusters } from "../commands/utils/config";
-import { parseResource } from "../azure-api-utils";
+import { filterClusters } from "../commands/utils/config";
 
 // The de facto API of tree nodes that represent individual Azure subscriptions.
 // Tree items should implement this interface to maintain backward compatibility with previous versions of the extension.
@@ -93,31 +92,8 @@ class SubscriptionTreeItem extends AzExtParentTreeItem implements SubscriptionTr
             throw clusterResourcesPromise.error;
         }
 
-        const getClusterFilter = getFilteredClusters();
-        return clusterResources.result
-            .map((r) => {
-                // Check if the subscription is in the filter for SeelctedClustersFilter
-                const isSubIdExistInClusterFilter = getClusterFilter.some(
-                    (filter) => filter.subscriptionId === this.subscriptionId,
-                );
+        const clusterResources = filterClusters(clusterResourcesPromise.result);
 
-                // Ensure getClusterFilter is an array of objects with name and subid properties
-                if (isSubIdExistInClusterFilter) {
-                    // Check if there's a match for the cluster name and subid
-                    const matchedCluster = getClusterFilter.find(
-                        (filter) => filter.clusterName === r.name && filter.subscriptionId === this.subscriptionId,
-                    );
-
-                    if (matchedCluster) {
-                        return createClusterTreeNode(this, this.subscriptionId, r);
-                    }
-                } else {
-                    return createClusterTreeNode(this, this.subscriptionId, r);
-                }
-                return undefined;
-            })
-
-            .filter((node) => node !== undefined);
 
         const fleetResourcesPromise = await getResources(this.sessionProvider, this.subscriptionId, fleetResourceType);
         if (failed(fleetResourcesPromise)) {
@@ -147,42 +123,9 @@ class SubscriptionTreeItem extends AzExtParentTreeItem implements SubscriptionTr
         });
         await Promise.all(memberPromises); // wait for all members to be fetched
 
-        const getClusterFilter = getFilteredClusters(); // to filter the qualified member clusters
         fleetToMembersMap.forEach((members, fleetId) => {
-            const filteredMembers = members
-                .map((r) => {
-                    // Check if the subscription is in the filter for SeelctedClustersFilter
-                    const isSubIdExistInClusterFilter = getClusterFilter.some(
-                        (filter) => filter.subscriptionId === this.subscriptionId,
-                    );
-
-                    // Ensure getClusterFilter is an array of objects with name and subid properties
-                    if (isSubIdExistInClusterFilter) {
-                        // Check if there's a match for the cluster name and subid
-                        const matchedCluster = getClusterFilter.find(
-                            (filter) =>
-                                filter.clusterName === parseResource(r.clusterResourceId).name &&
-                                filter.subscriptionId === this.subscriptionId,
-                        );
-
-                        if (matchedCluster) {
-                            members.forEach((member) => {
-                                clusterToMemberMap.set(member.clusterResourceId.toLowerCase(), member);
-                            });
-                            return r;
-                        }
-                    } else {
-                        members.forEach((member) => {
-                            clusterToMemberMap.set(member.clusterResourceId.toLowerCase(), member);
-                        });
-                        return r;
-                    }
-                    return undefined;
-                })
-                .filter((node) => node !== undefined);
-
-            fleetToMembersMap.set(fleetId, filteredMembers);
-            filteredMembers.forEach((member) => {
+            fleetToMembersMap.set(fleetId, members);
+            members.forEach((member) => {
                 clusterToMemberMap.set(member.clusterResourceId.toLowerCase(), member);
             });
         });
@@ -208,7 +151,7 @@ class SubscriptionTreeItem extends AzExtParentTreeItem implements SubscriptionTr
                 fleetTreeNodes.set(r.id, fleetTreeItem);
                 return fleetTreeItem;
             } else if (r.type?.toLocaleLowerCase() === "microsoft.containerservice/managedclusters") {
-                const cluster = createClusterTreeNode(this, this.subscriptionId, r);
+                const cluster = createClusterTreeNode(this, r);
                 clusterTreeItems.set(r.id, cluster);
                 return clusterTreeItems;
             } else {
