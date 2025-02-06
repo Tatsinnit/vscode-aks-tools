@@ -40,6 +40,19 @@ export interface SubscriptionFilter {
     subscriptionId: string;
 }
 
+export interface ClusterFilter {
+    subscriptionId: string;
+    clusterName: string;
+}
+
+export interface AksCluster {
+    id: string;
+    name: string;
+    location: string;
+    resourceGroup: string;
+    subscriptionId: string;
+}
+
 const onFilteredSubscriptionsChangeEmitter = new vscode.EventEmitter<void>();
 
 export function getFilteredSubscriptionsChangeEvent() {
