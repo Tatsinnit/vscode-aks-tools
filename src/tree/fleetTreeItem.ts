@@ -4,6 +4,7 @@ import { DefinedFleetMemberWithGroup, DefinedResourceWithGroup } from "../comman
 import { SubscriptionTreeNode } from "./subscriptionTreeItem";
 import { createClusterTreeNode } from "./aksClusterTreeItem";
 import { parseResource } from "../azure-api-utils";
+import { filterClusters } from "../commands/utils/config";
 
 // The de facto API of tree nodes that represent individual AKS clusters.
 // Tree items should implement this interface to maintain backward compatibility with previous versions of the extension.
@@ -73,18 +74,19 @@ class FleetTreeItem extends AzExtParentTreeItem implements FleetTreeNode {
     }
 
     public loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
-        const treeItems: AzExtTreeItem[] = [];
+        const drgs: DefinedResourceWithGroup[] = [];
         this.members.forEach((m) => {
             const parsedResourceId = parseResource(m.clusterResourceId);
             const drg: DefinedResourceWithGroup = {
                 // the cluster resource parsed from the member resource
-                id: m.id,
+                id: m.clusterResourceId,
                 name: parsedResourceId.name!,
                 resourceGroup: parsedResourceId.resourceGroupName!,
             };
-            treeItems.push(createClusterTreeNode(this, parsedResourceId.subscriptionId!, drg));
+            drgs.push(drg);
         });
-        return Promise.resolve(treeItems);
+        const treeNodes = filterClusters(drgs).map((drg) => createClusterTreeNode(this, drg));
+        return Promise.resolve(treeNodes);
     }
     public hasMoreChildrenImpl(): boolean {
         return false; // we pre-load the clusters in the TreeItem. no need to load more.
