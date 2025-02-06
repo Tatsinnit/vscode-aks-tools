@@ -8,7 +8,6 @@ import { longRunning } from "../utils/host";
 import { getGraphResourceClient } from "../utils/arm";
 import { getReadySessionProvider } from "../../auth/azureAuth";
 import { AksCluster, getFilteredClusters, setFilteredClusters } from "./config";
-import { parseResource, parseSubId } from "../../azure-api-utils";
 import { ResourceGraphClient } from "@azure/arm-resourcegraph";
 
 export default async function aksClusterFilter(_context: IActionContext, target: unknown): Promise<void> {
@@ -79,7 +78,7 @@ async function fetchAksClusters(
     subscriptionId: string,
 ): Promise<AksCluster[]> {
     const query = {
-        query: "Resources | where type =~ 'Microsoft.ContainerService/managedClusters' | project name, location, resourceGroup, subscriptionId",
+        query: "Resources | where type =~ 'Microsoft.ContainerService/managedClusters' | project id, name, location, resourceGroup, subscriptionId, type",
         subscriptions: [subscriptionId],
     };
 
@@ -92,6 +91,7 @@ async function fetchAksClusters(
             location: resource.location,
             resourceGroup: resource.resourceGroup,
             subscriptionId: resource.subscriptionId,
+            type: resource.type,
         }));
 
         return aksClusters;
