@@ -4,6 +4,7 @@ import { CloudExplorerV1 } from "vscode-kubernetes-tools-api";
 import { assetUri } from "../assets";
 import { DefinedResourceWithGroup } from "../commands/utils/azureResources";
 import { SubscriptionTreeNode } from "./subscriptionTreeItem";
+import { parseResource } from "../azure-api-utils";
 
 // The de facto API of tree nodes that represent individual AKS clusters.
 // Tree items should implement this interface to maintain backward compatibility with previous versions of the extension.
@@ -20,24 +21,24 @@ export interface AksClusterTreeNode {
 
 export function createClusterTreeNode(
     parent: (AzExtParentTreeItem & SubscriptionTreeNode) | (AzExtParentTreeItem & FleetTreeNode),
-    subscriptionId: string,
     clusterResource: DefinedResourceWithGroup,
 ): AzExtTreeItem {
-    return new AksClusterTreeItem(parent, subscriptionId, clusterResource);
+    return new AksClusterTreeItem(parent, clusterResource);
 }
 
 class AksClusterTreeItem extends AzExtTreeItem implements AksClusterTreeNode {
     public readonly subscriptionTreeNode: SubscriptionTreeNode;
     public readonly armId: string;
+    public readonly subscriptionId: string;
     public readonly resourceGroupName: string;
     public readonly name: string;
 
     constructor(
         parent: (AzExtParentTreeItem & SubscriptionTreeNode) | (AzExtParentTreeItem & FleetTreeNode),
-        readonly subscriptionId: string,
         readonly clusterResource: DefinedResourceWithGroup,
     ) {
         super(parent);
+        this.subscriptionId = parseResource(clusterResource.id).subscriptionId!;
 
         this.iconPath = assetUri("resources/aks-tools.png");
         if (parent.nodeType === "subscription") {

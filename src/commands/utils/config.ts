@@ -6,6 +6,8 @@ import { CommandCategory, PresetCommand } from "../../webview-contract/webviewDe
 import { RetinaDownloadConfig } from "../periscope/models/RetinaDownloadConfig";
 import { isObject } from "./runtimeTypes";
 import { Environment, EnvironmentParameters } from "@azure/ms-rest-azure-env";
+import { DefinedResourceWithGroup } from "./azureResources";
+import { parseResource } from "../../azure-api-utils";
 
 export function getConfiguredAzureEnv(): Environment {
     // See:
@@ -78,6 +80,37 @@ export function getFilteredClusters(): ClusterFilter[] {
     } catch {
         return [];
     }
+}
+
+export function filterClusters(resources: DefinedResourceWithGroup[]): DefinedResourceWithGroup[] {
+    const getClusterFilter = getFilteredClusters();
+    if (getClusterFilter.length === 0) {
+        return resources;
+    }
+    return resources
+        .map((r) => {
+            const rid = parseResource(r.id);
+            // Check if the subscription is in the filter for SeelctedClustersFilter
+            const isSubIdExistInClusterFilter = getClusterFilter.some(
+                (filter) => filter.subscriptionId === rid.subscriptionId,
+            );
+
+            // Ensure getClusterFilter is an array of objects with name and subid properties
+            if (isSubIdExistInClusterFilter) {
+                // Check if there's a match for the cluster name and subid
+                const matchedCluster = getClusterFilter.find(
+                    (filter) => filter.clusterName === r.name && filter.subscriptionId === rid.subscriptionId,
+                );
+
+                if (matchedCluster) {
+                    return r;
+                }
+            } else {
+                return r;
+            }
+            return undefined;
+        })
+        .filter((node) => node !== undefined);
 }
 
 function asSubscriptionFilter(value: string): SubscriptionFilter | null {
