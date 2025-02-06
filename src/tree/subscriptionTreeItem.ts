@@ -10,12 +10,10 @@ import { assetUri } from "../assets";
 import * as k8s from "vscode-kubernetes-tools-api";
 import { window } from "vscode";
 import {
-    clusterResourceType,
-    fleetResourceType,
-    getResources,
     getFleetMembers,
     DefinedResourceWithGroup,
     DefinedFleetMemberWithGroup,
+    getClusterAndFleetResourcesFromGraphAPI,
 } from "../commands/utils/azureResources";
 import { failed } from "../commands/utils/errorable";
 import { ReadyAzureSessionProvider } from "../auth/types";
@@ -85,29 +83,28 @@ class SubscriptionTreeItem extends AzExtParentTreeItem implements SubscriptionTr
         clusterResources: DefinedResourceWithGroup[];
         fleetResources: DefinedResourceWithGroup[];
     }> {
-        const clusterResourcesPromise = await getResources(
+        const clusterAndFleetResourcesPromise = await getClusterAndFleetResourcesFromGraphAPI(
             this.sessionProvider,
             this.subscriptionId,
-            clusterResourceType,
         );
-        if (failed(clusterResourcesPromise)) {
-            window.showErrorMessage(
-                `Failed to list clusters in subscription ${this.subscriptionId}: ${clusterResourcesPromise.error}`,
-            );
-            throw clusterResourcesPromise.error;
-        }
-        const clusterResources = filterClusters(clusterResourcesPromise.result);
 
-
-        const fleetResourcesPromise = await getResources(this.sessionProvider, this.subscriptionId, fleetResourceType);
-        if (failed(fleetResourcesPromise)) {
+        if (failed(clusterAndFleetResourcesPromise)) {
             window.showErrorMessage(
-                `Failed to list fleets in subscription ${this.subscriptionId}: ${fleetResourcesPromise.error}`,
+                `Failed to list clusters or fleets in subscription ${this.subscriptionId}: ${clusterAndFleetResourcesPromise.error}`,
             );
-            throw fleetResourcesPromise.error;
+            throw clusterAndFleetResourcesPromise.error;
         }
 
-        return { clusterResources: clusterResourcesPromise.result, fleetResources: fleetResourcesPromise.result };
+        const managedClusters = clusterAndFleetResourcesPromise.result.filter((resource) =>
+            resource.type.includes("managedclusters"),
+        );
+        const fleetsResources = clusterAndFleetResourcesPromise.result.filter((resource) =>
+            resource.type.includes("fleets"),
+        );
+
+        const clusterResources = filterClusters(managedClusters);
+
+        return { clusterResources: clusterResources, fleetResources: fleetsResources };
     }
 
     private async mapFleetAndClusterMembers(fleetResources: DefinedResourceWithGroup[]) {
