@@ -16,7 +16,7 @@ export interface FleetTreeNode {
     readonly subscriptionId: string;
     readonly resourceGroupName: string;
     readonly fleetResource: DefinedResourceWithGroup;
-    addCluster(clusters: DefinedResourceWithGroup[]): void;
+    addMember(members: DefinedResourceWithGroup[]): void;
 }
 
 export function createFleetTreeNode(
@@ -66,7 +66,7 @@ class FleetTreeItem extends AzExtParentTreeItem implements FleetTreeNode {
 
     private readonly members: Map<string, DefinedFleetMemberWithGroup> = new Map<string, DefinedFleetMemberWithGroup>();
 
-    public addCluster(members: DefinedFleetMemberWithGroup[]): void {
+    public addMember(members: DefinedFleetMemberWithGroup[]): void {
         members.forEach((m) => {
             this.members.set(m.id, m);
         });
