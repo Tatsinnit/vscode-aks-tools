@@ -20,6 +20,7 @@ import {
 import { failed } from "../commands/utils/errorable";
 import { ReadyAzureSessionProvider } from "../auth/types";
 import { getFilteredClusters } from "../commands/utils/config";
+import { parseResource } from "../azure-api-utils";
 
 // The de facto API of tree nodes that represent individual Azure subscriptions.
 // Tree items should implement this interface to maintain backward compatibility with previous versions of the extension.
@@ -35,7 +36,7 @@ export function isSubscriptionTreeNode(node: unknown): node is SubscriptionTreeN
     return node instanceof SubscriptionTreeItem;
 }
 
-export function createSubscriptionTreeItem( // create subscription node
+export function createSubscriptionTreeItem(
     parent: AzExtParentTreeItem,
     sessionProvider: ReadyAzureSessionProvider,
     subscription: ISubscriptionContext,
@@ -81,7 +82,10 @@ class SubscriptionTreeItem extends AzExtParentTreeItem implements SubscriptionTr
         return false;
     }
 
-    async fetchClustersAndFleets() {
+    private async fetchClustersAndFleets(): Promise<{
+        clusterResources: DefinedResourceWithGroup[];
+        fleetResources: DefinedResourceWithGroup[];
+    }> {
         const clusterResourcesPromise = await getResources(
             this.sessionProvider,
             this.subscriptionId,
@@ -146,8 +150,42 @@ class SubscriptionTreeItem extends AzExtParentTreeItem implements SubscriptionTr
         });
         await Promise.all(memberPromises); // wait for all members to be fetched
 
-        fleetToMembersMap.forEach((members) => {
-            members.forEach((member) => {
+        const getClusterFilter = getFilteredClusters(); // to filter the qualified member clusters
+        fleetToMembersMap.forEach((members, fleetId) => {
+            const filteredMembers = members
+                .map((r) => {
+                    // Check if the subscription is in the filter for SeelctedClustersFilter
+                    const isSubIdExistInClusterFilter = getClusterFilter.some(
+                        (filter) => filter.subscriptionId === this.subscriptionId,
+                    );
+
+                    // Ensure getClusterFilter is an array of objects with name and subid properties
+                    if (isSubIdExistInClusterFilter) {
+                        // Check if there's a match for the cluster name and subid
+                        const matchedCluster = getClusterFilter.find(
+                            (filter) =>
+                                filter.clusterName === parseResource(r.clusterResourceId).name &&
+                                filter.subscriptionId === this.subscriptionId,
+                        );
+
+                        if (matchedCluster) {
+                            members.forEach((member) => {
+                                clusterToMemberMap.set(member.clusterResourceId.toLowerCase(), member);
+                            });
+                            return r;
+                        }
+                    } else {
+                        members.forEach((member) => {
+                            clusterToMemberMap.set(member.clusterResourceId.toLowerCase(), member);
+                        });
+                        return r;
+                    }
+                    return undefined;
+                })
+                .filter((node) => node !== undefined);
+
+            fleetToMembersMap.set(fleetId, filteredMembers);
+            filteredMembers.forEach((member) => {
                 clusterToMemberMap.set(member.clusterResourceId.toLowerCase(), member);
             });
         });
@@ -162,14 +200,14 @@ class SubscriptionTreeItem extends AzExtParentTreeItem implements SubscriptionTr
         const { fleetToMembersMap, clusterToMemberMap } = await this.mapFleetAndClusterMembers(fleetResources);
 
         // remove clusters that are members of fleets
-        clusterResources = clusterResources.filter((r) => !clusterToMemberMap.has(r.id.toLowerCase()));
+        clusterResources = clusterResources.filter((r) => !clusterToMemberMap.has(r.id.toLowerCase())); // Affected by the issue
 
         const fleetTreeNodes = new Map<string, FleetTreeNode>();
         const clusterTreeItems = new Map<string, AzExtTreeItem>();
         fleetResources.concat(clusterResources).forEach((r) => {
             if (r.type?.toLocaleLowerCase() === "microsoft.containerservice/fleets") {
                 const fleetTreeItem = createFleetTreeNode(this, this.subscriptionId, r);
-                fleetTreeItem.addCluster(fleetToMembersMap.get(r.id) || []);
+                fleetTreeItem.addMember(fleetToMembersMap.get(r.id) || []);
                 fleetTreeNodes.set(r.id, fleetTreeItem);
                 return fleetTreeItem;
             } else if (r.type?.toLocaleLowerCase() === "microsoft.containerservice/managedclusters") {
