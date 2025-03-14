@@ -12,6 +12,7 @@ import { TelemetryDefinition } from "../webview-contract/webviewTypes";
 import { BasePanel, PanelDataProvider } from "./BasePanel";
 import { getLocalKubectlCpPath } from "./utilities/KubectlNetworkHelper";
 import * as semver from "semver";
+import { analyzeLogs } from "../commands/utils/aiAnalyzeLogs";
 
 export class RetinaCapturePanel extends BasePanel<"retinaCapture"> {
     constructor(extensionUri: Uri) {
@@ -23,6 +24,7 @@ export class RetinaCapturePanel extends BasePanel<"retinaCapture"> {
 }
 
 export class RetinaCaptureProvider implements PanelDataProvider<"retinaCapture"> {
+    private downloadPath: string = "";
     constructor(
         readonly kubectl: k8s.APIAvailable<k8s.KubectlV1>,
         readonly kubectlVersion: KubectlVersion,
@@ -42,6 +44,7 @@ export class RetinaCaptureProvider implements PanelDataProvider<"retinaCapture">
         return {
             handleCaptureFileDownload: true,
             deleteRetinaNodeExplorer: true,
+            analyzeLogs: true,
         };
     }
 
@@ -62,6 +65,7 @@ export class RetinaCaptureProvider implements PanelDataProvider<"retinaCapture">
             deleteRetinaNodeExplorer: (node: string) => {
                 this.handleDeleteRetinaNodeExplorer(node);
             },
+            analyzeLogs: () => this.analyzeLogs(),
         };
     }
 
@@ -98,6 +102,7 @@ export class RetinaCaptureProvider implements PanelDataProvider<"retinaCapture">
         }
 
         const localCpPath = getLocalKubectlCpPath(localCaptureUri);
+        this.downloadPath = localCpPath;
 
         const nodes = node.split(",");
         for (const node of nodes) {
@@ -189,5 +194,11 @@ spec:
                     open(captureHostFolderName);
                 }
             });
+    }
+
+    private async analyzeLogs() {
+        //extract path from downloadPath
+        console.log("Current working directory 1:", process.cwd());
+        analyzeLogs(this.downloadPath);
     }
 }

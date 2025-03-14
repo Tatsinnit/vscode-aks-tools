@@ -11,13 +11,14 @@ import { stateUpdater, vscode } from "./state";
 type ChangeEvent = Event | FormEvent<HTMLElement>;
 
 export function RetinaCapture(initialState: InitialState) {
-    const { state } = useStateManagement(stateUpdater, initialState, vscode); //eventHandlers
+    const { state, eventHandlers } = useStateManagement(stateUpdater, initialState, vscode); //eventHandlers
     const [selectedNode, setSelectedNode] = useState<Array<string>>([]);
     const [showDeleteNodeExplorerDialog, setShowDeleteNodeExplorerDialog] = useState(false);
 
     function handleCaptureFileDownload() {
         const result = selectedNode.join(",");
         vscode.postHandleCaptureFileDownload(result);
+        eventHandlers.onSetDownloadCompleted(true);
     }
 
     function onSelectNode(e: ChangeEvent, node: string) {
@@ -36,6 +37,13 @@ export function RetinaCapture(initialState: InitialState) {
         // show delete node explorer dialog
         setShowDeleteNodeExplorerDialog(true);
     }
+
+    function analyzeLogs() {
+            vscode.postAnalyzeLogs();
+            // TODO: set analysis results using eventHandlers
+    }
+
+
 
     return (
         <>
@@ -73,6 +81,12 @@ export function RetinaCapture(initialState: InitialState) {
                             onClick={() => handleCaptureFileDownload()}
                         >
                             Download Retina Logs to Host Machine.
+                        </VSCodeButton>
+                        <VSCodeButton
+                            type="submit"
+                            style={{ marginRight: "0.625rem" }}
+                            onClick={analyzeLogs}>
+                            Analyze Logs
                         </VSCodeButton>
                         {state.isNodeExplorerPodExists && (
                             <VSCodeButton appearance="secondary" onClick={() => handleDeleteExplorerPod()}>

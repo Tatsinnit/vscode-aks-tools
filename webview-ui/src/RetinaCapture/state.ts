@@ -2,19 +2,38 @@ import { InitialState } from "../../../src/webview-contract/webviewDefinitions/r
 import { WebviewStateUpdater } from "../utilities/state";
 import { getWebviewMessageContext } from "../utilities/vscode";
 
-export type EventDef = Record<string, never>;
+export type EventDef = {
+    setDownloadCompleted: boolean;
+    // setAnalysisResults: string;
+};
 
 export type RetinaState = InitialState;
 
 export const stateUpdater: WebviewStateUpdater<"retinaCapture", EventDef, RetinaState> = {
     createState: (initialState) => ({
         ...initialState,
+        // analysisResults: undefined,
     }),
-    vscodeMessageHandler: {},
-    eventHandler: {},
+    vscodeMessageHandler: {
+        // setAnalysisResults: (state, args) => ({
+        //     ...state,
+        //     analysisResults: args.results,
+        // }),
+    },
+    eventHandler: {
+        // setAnalysisResults: (state, results) => ({
+        //     ...state,
+        //     analysisResults: results,
+        // }),
+        setDownloadCompleted: (state, isDownloaded) => ({
+            ...state,
+            isDownloaded
+        }),
+    },
 };
 
 export const vscode = getWebviewMessageContext<"retinaCapture">({
     deleteRetinaNodeExplorer: undefined,
     handleCaptureFileDownload: undefined,
+    analyzeLogs: undefined,
 });

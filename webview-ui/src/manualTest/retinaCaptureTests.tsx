@@ -27,6 +27,9 @@ export function getRetinaCaptureScenarios() {
             deleteRetinaNodeExplorer: (result: string) => {
                 console.log(`Retina capture result: ${result}`);
             },
+            analyzeLogs: () => {
+                console.log("Analyzing logs...");
+            },
         };
     }
 

@@ -2,12 +2,21 @@ import { OpenAI } from "openai";
 import * as fs from "fs";
 import * as path from "path";
 import * as dotenv from "dotenv";
+import { execSync } from "child_process";
 
 dotenv.config();
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const OPENAI_API_KEY = "";
+const AZURE_OPENAI_ENDPOINT = "https://ai-analyze-logs.openai.azure.com/";
+const AZURE_DEPLOYMENT_NAME = "o3-mini";
 
-const LOGS_DIRECTORY = "./logs"; 
+const openai = new OpenAI({
+    apiKey: OPENAI_API_KEY,
+    baseURL: `${AZURE_OPENAI_ENDPOINT}/openai/deployments/${AZURE_DEPLOYMENT_NAME}`,
+    defaultQuery: { "api-version": "2024-06-01" },
+});
+
+// const LOGS_DIRECTORY = "./logs";
 // Change to your actual logs folder loaction for now where retina gets default downloaded
 
 // Function to read all log and cap files
@@ -27,8 +36,14 @@ async function readLogFiles(directory: string): Promise<string[]> {
 }
 
 // Function to send logs to OpenAI for analysis
-export async function analyzeLogs() {
-    const logs = await readLogFiles(LOGS_DIRECTORY);
+export async function analyzeLogs(logsDir: string) {
+    console.log("Current working directory 2:", process.cwd());
+    const absolutePath = path.resolve(logsDir);
+    console.log(`wsl path ${absolutePath}...`);
+    const windowsPath = execSync(`wslpath -w ${absolutePath}`).toString().trim();
+    console.log(`windows path ${windowsPath}...`);
+    console.log(`Reading logs from ${logsDir}...`);
+    const logs = await readLogFiles(logsDir);
     if (logs.length === 0) {
         console.log("No log files found.");
         return;
@@ -38,7 +53,7 @@ export async function analyzeLogs() {
 
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-4",
+            model: "o3-mini",
             messages: [{ role: "user", content: prompt }],
             temperature: 0.5,
         });
@@ -49,5 +64,3 @@ export async function analyzeLogs() {
         console.error("Error analyzing logs:", error);
     }
 }
-
-analyzeLogs();
