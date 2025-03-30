@@ -59,6 +59,7 @@ import aksClusterFilter from "./commands/utils/clusterfilter";
 //import aksAutomatedDeployments from "./commands/devhub/aksAutomatedDeployments";
 import aksCreateFleet from "./commands/aksFleet/aksFleetManager";
 import aksFleetProperties from "./commands/aksFleetProperties/askFleetProperties";
+import deployHeadlamp from "./commands/aksDeployHeadlamp/deployheadlamp";
 
 export async function activate(context: vscode.ExtensionContext) {
     const cloudExplorer = await k8s.extension.cloudExplorer.v1;
@@ -129,6 +130,7 @@ export async function activate(context: vscode.ExtensionContext) {
         //registerCommandWithTelemetry("aks.aksAutomatedDeployments", aksAutomatedDeployments);
         registerCommandWithTelemetry("aks.aksCreateFleet", aksCreateFleet);
         registerCommandWithTelemetry("aks.aksFleetProperties", aksFleetProperties);
+        registerCommandWithTelemetry("aks.deployheadlamp", deployHeadlamp);
 
         await registerAzureServiceNodes(context);
 
