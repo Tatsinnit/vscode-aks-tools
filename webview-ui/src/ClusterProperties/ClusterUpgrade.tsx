@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ClusterInfo } from "../../../src/webview-contract/webviewDefinitions/clusterProperties";
 import styles from "./ClusterProperties.module.css";
 import { vscode } from "./state";
-import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDropdown, VSCodeLink, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
 import { ConfirmationDialog } from "./ConfirmationDialog";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
@@ -26,6 +26,11 @@ export function ClusterUpgrade(props: ClusterUpgradeProps) {
             setSelectedVersion(version);
             setShowConfirmation(true);
         }
+    }
+
+    function handleCRUDDetectorCall() {
+        // Then post the request to the extension
+        vscode.postDetectorCRUDRequest();
     }
 
     function handleConfirmUpgrade() {
@@ -97,6 +102,19 @@ export function ClusterUpgrade(props: ClusterUpgradeProps) {
                         </VSCodeOption>
                     ))}
                 </VSCodeDropdown>
+            </div>
+            <div className={styles.upgradeVersionLink}>
+                <VSCodeLink
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onclick={handleCRUDDetectorCall}
+                    style={{ minWidth: "120px", maxWidth: "150px" }}
+                >
+                    <FontAwesomeIcon icon={faExclamationTriangle} className={styles.warningIcon} />
+                    <strong>Run CRUD Detector For any potential issues </strong>
+                    <br />
+                </VSCodeLink>
             </div>
             <ConfirmationDialog
                 title="Confirm Kubernetes Version Upgrade"
