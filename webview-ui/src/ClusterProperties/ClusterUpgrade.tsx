@@ -112,7 +112,7 @@ export function ClusterUpgrade(props: ClusterUpgradeProps) {
                     style={{ minWidth: "120px", maxWidth: "150px" }}
                 >
                     <FontAwesomeIcon icon={faExclamationTriangle} className={styles.warningIcon} />
-                    <strong>Run CRUD Detector For any potential issues </strong>
+                    <strong>Run CRUD Validations</strong>
                     <br />
                 </VSCodeLink>
             </div>
