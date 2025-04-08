@@ -2,6 +2,7 @@ import { OpenAI } from "openai";
 import * as fs from "fs";
 import * as path from "path";
 import * as dotenv from "dotenv";
+import * as vscode from "vscode";
 
 dotenv.config();
 
@@ -62,6 +63,14 @@ export async function analyzeLogs(logsDir: string) {
 
         console.log("Analysis Result:");
         console.log(response.choices[0].message.content);
+        
+
+        const outputChannel = vscode.window.createOutputChannel("aks-logs-analyzer");
+        outputChannel.show();
+        outputChannel.appendLine("Analysis Result:");
+        outputChannel.appendLine(response.choices[0].message.content!);
+        outputChannel.appendLine("Analysis completed successfully.");
+        outputChannel.appendLine("Please check the output for details.");
     } catch (error) {
         console.error("Error analyzing logs:", error);
     }
