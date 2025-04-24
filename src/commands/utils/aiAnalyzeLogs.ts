@@ -1,4 +1,4 @@
-import { OpenAI } from "openai";
+import { AzureOpenAI } from "openai";
 import * as fs from "fs";
 import * as path from "path";
 import * as dotenv from "dotenv";
@@ -6,21 +6,19 @@ import * as vscode from "vscode";
 
 dotenv.config();
 
-const OPENAI_API_KEY = "";
+import { DefaultAzureCredential, getBearerTokenProvider } from "@azure/identity";
 
-// const AZURE_OPENAI_ENDPOINT = "https://ai-analyze-logs.openai.azure.com/";
-// const AZURE_DEPLOYMENT_NAME = "o3-mini";
+const credential = new DefaultAzureCredential();
+const scope = "https://cognitiveservices.azure.com/.default";
+const azureADTokenProvider = getBearerTokenProvider(credential, scope);
 
-// const openai = new OpenAI({
-//     apiKey: OPENAI_API_KEY,
-//     baseURL: `${AZURE_OPENAI_ENDPOINT}/openai/deployments/${AZURE_DEPLOYMENT_NAME}`,
-//     defaultQuery: { "api-version": "2024-06-01" },
-// });
+const API_VERSION = "2024-08-01-preview";
+const AZURE_OPENAI_ENDPOINT = "https://ai-analyze-logs.openai.azure.com/"; // or read from env
+const AZURE_DEPLOYMENT_NAME = "o3-mini";
 
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY }); // process.env.OPENAI_API_KEY });
+const client = new AzureOpenAI({ azureADTokenProvider, apiVersion: API_VERSION, endpoint: AZURE_OPENAI_ENDPOINT });
 
-// const LOGS_DIRECTORY = "./logs";
-// Change to your actual logs folder loaction for now where retina gets default downloaded
+// const openai = new OpenAI({ apiKey: OPENAI_API_KEY }); // process.env.OPENAI_API_KEY });
 
 // Function to read all log and cap files
 async function readLogFiles(directory: string): Promise<string[]> {
@@ -40,11 +38,6 @@ async function readLogFiles(directory: string): Promise<string[]> {
 
 // Function to send logs to OpenAI for analysis
 export async function analyzeLogs(logsDir: string) {
-    console.log("Current working directory 2:", process.cwd());
-    const absolutePath = path.resolve(logsDir);
-    console.log(`wsl path ${absolutePath}...`);
-    // const windowsPath = execSync(`wslpath -w ${absolutePath}`).toString().trim();
-    // console.log(`windows path ${windowsPath}...`);
     console.log(`Reading logs from ${logsDir}...`);
     const logs = await readLogFiles(logsDir);
     if (logs.length === 0) {
@@ -55,8 +48,8 @@ export async function analyzeLogs(logsDir: string) {
     const prompt = `Analyze the following log files for any errors or anomalies:\n\n${logs.join("\n")}\n\nProvide a summary of issues found and possible solutions.`;
 
     try {
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o",
+        const response = await client.chat.completions.create({
+            model: AZURE_DEPLOYMENT_NAME,
             messages: [{ role: "user", content: prompt }],
             temperature: 0.5,
         });
