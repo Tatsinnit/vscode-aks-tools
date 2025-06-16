@@ -1,0 +1,16 @@
+name: ChatGPT Review
+
+on: [pull_request]
+
+
+jobs:
+  chatgptreview:
+    name: ChatGPT
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: ChatGPT Reviewer
+      uses: ./
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

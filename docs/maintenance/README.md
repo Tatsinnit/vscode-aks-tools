@@ -1,5 +1,7 @@
 ## How to Release
 
+test test
+
 To make a new release and publish it to the marketplace you have to follow the following steps.
 
 1. Create a branch `publish-x.y.z`
