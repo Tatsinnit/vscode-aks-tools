@@ -365,6 +365,10 @@
             {
                 "command": "aks.aksFleetProperties",
                 "title": "%Show Fleet Properties%"
+            },
+            {
+                "command": "aks.aksSetupMCPServerCommands",
+                "title": "Setup MCP Server"
             }
         ],
         "menus": {
@@ -493,6 +497,10 @@
                 {
                     "command": "aks.aksFleetProperties",
                     "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.fleet/i"
+                },
+                {
+                    "command": "aks.aksSetupMCPServerCommands",
+                    "when": "view == extension.vsKubernetesExplorer && viewItem =~ /vsKubernetes\\.\\w*cluster$/i"
                 }
             ],
             "aks.createClusterSubMenu": [

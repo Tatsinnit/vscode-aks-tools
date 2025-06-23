@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-server-config
+data:
+  config.yaml: |
+    server:
+      port: 8443
+    logLevel: info
+    

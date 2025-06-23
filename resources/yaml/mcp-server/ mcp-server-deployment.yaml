@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-server
+  labels:
+    app: mcp-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcp-server
+  template:
+    metadata:
+      labels:
+        app: mcp-server
+    spec:
+      containers:
+        - name: mcp-server
+          image: ghcr.io/azure/mcp-kubernetes/mcp-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8443
+          args:
+            - "--config=/etc/mcp/config.yaml"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/mcp
+      volumes:
+        - name: config-volume
+          configMap:
+            name: mcp-server-config

@@ -24,3 +24,20 @@ export function getWorkflowYaml(workflowName: string): Errorable<string> {
 export function substituteClusterInWorkflowYaml(workflowYaml: string, instanceType: string, appID: string): string {
     return workflowYaml.replace("<INSTANCE_TYPE>", instanceType).replaceAll("<APP_ID>", appID);
 }
+
+export function getWorkflowJson(workflowName: string): Errorable<string> {
+    const extensionPath = getExtensionPath();
+    if (failed(extensionPath)) {
+        return extensionPath;
+    }
+
+    const jsonPathOnDisk = vscode.Uri.file(
+        path.join(extensionPath.result, "resources", "json", `${workflowName}.json`),
+    );
+    try {
+        const content = fs.readFileSync(jsonPathOnDisk.fsPath, "utf8");
+        return { succeeded: true, result: content };
+    } catch (e) {
+        return { succeeded: false, error: `Failed to read ${jsonPathOnDisk}: ${e}` };
+    }
+}
