@@ -63,7 +63,6 @@ import aksFleetProperties from "./commands/aksFleetProperties/askFleetProperties
 import * as l10n from "@vscode/l10n";
 import * as path from "path";
 import * as fs from "fs";
-// import setupMCPServer from "./commands/aksMCP/setupMCPServer";
 import { addMcpServerToUserSettings } from "./commands/aksMCP/setupMCPServerSimple";
 
 export async function activate(context: vscode.ExtensionContext) {
