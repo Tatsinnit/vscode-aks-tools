@@ -1,7 +1,0 @@
-{
-  "name": "mcp-server",
-  "image": "ghcr.io/azure/mcp-kubernetes:latest",
-  "port": 8443,
-  "replicas": 1,
-  "logLevel": "info"
-}
