@@ -6,6 +6,7 @@ import { CommandCategory, PresetCommand } from "../../webview-contract/webviewDe
 import { RetinaDownloadConfig } from "../periscope/models/RetinaDownloadConfig";
 import { isObject } from "./runtimeTypes";
 import { Environment, EnvironmentParameters } from "@azure/ms-rest-azure-env";
+import { MCPServerConfig, MCPServerContainerKitConfig } from "../periscope/models/mcpServerConfig";
 
 export function getConfiguredAzureEnv(): Environment {
     // See:
@@ -265,6 +266,44 @@ export function getRetinaConfig(): Errorable<RetinaDownloadConfig> {
         return {
             succeeded: false,
             error: `Failed to read aks.retina configuration: ${props.error}`,
+        };
+    }
+
+    const config = {
+        releaseTag: props.result,
+    };
+
+    return { succeeded: true, result: config };
+}
+
+
+export function getMCPServerConfig(): Errorable<MCPServerConfig> {
+    const mcpServerConfig = vscode.workspace.getConfiguration("aks.mcpserver");
+    const props = getConfigValue(mcpServerConfig, "releaseTag");
+
+    if (failed(props)) {
+        return {
+            succeeded: false,
+            error: `Failed to read aks.mcpserver configuration: ${props.error}`,
+        };
+    }
+
+    const config = {
+        releaseTag: props.result,
+    };
+
+    return { succeeded: true, result: config };
+}
+
+
+export function getMCPServerContainerKitConfig(): Errorable<MCPServerContainerKitConfig> {
+    const mcpServerConfig = vscode.workspace.getConfiguration("aks.mcpservercontainerkit");
+    const props = getConfigValue(mcpServerConfig, "releaseTag");
+
+    if (failed(props)) {
+        return {
+            succeeded: false,
+            error: `Failed to read aks.mcpservercontainerkit configuration: ${props.error}`,
         };
     }
 

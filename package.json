@@ -166,6 +166,18 @@
                     "title": "Retina repository release tag",
                     "description": "Release tag for the stable Retina tool release."
                 },
+                "aks.mcpserver.releaseTag": {
+                    "type": "string",
+                    "default": "v0.0.1",
+                    "title": "MCP Server repository release tag",
+                    "description": "Release tag for the stable MCP Server tool release."
+                },
+                "aks.mcpservercontainerkit.releaseTag": {
+                    "type": "string",
+                    "default": "v0.0.5",
+                    "title": "MCP Server Container Kit repository release tag",
+                    "description": "Release tag for the stable MCP Server Container Kit tool release."
+                },
                 "aks.copilotEnabledPreview": {
                     "type": "boolean",
                     "default": true,
@@ -368,7 +380,7 @@
             },
             {
                 "command": "aks.aksSetupMCPServerCommands",
-                "title": "Setup MCP Server"
+                "title": "AKS: Setup MCP Server"
             }
         ],
         "menus": {
@@ -497,10 +509,6 @@
                 {
                     "command": "aks.aksFleetProperties",
                     "when": "view == kubernetes.cloudExplorer && viewItem =~ /aks\\.fleet/i"
-                },
-                {
-                    "command": "aks.aksSetupMCPServerCommands",
-                    "when": "view == extension.vsKubernetesExplorer && viewItem =~ /vsKubernetes\\.\\w*cluster$/i"
                 }
             ],
             "aks.createClusterSubMenu": [
