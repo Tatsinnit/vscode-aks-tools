@@ -1,0 +1,92 @@
+name: Build & Securely Publish VSIX
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-submit:
+    runs-on: ubuntu-latest
+    env:
+      STORAGE_ACCOUNT: "<yourStorageAccount>"
+      UNSIGNED_CONTAINER: unsigned
+      SIGNED_CONTAINER: signed
+      ADO_ORG: "<org>"
+      ADO_PROJECT: "<project>"
+      ADO_PIPELINE_ID: "<pipelineId>"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Package VSIX
+        run: npx @vscode/vsce package --no-dependencies
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+
+      - name: Upload unsigned VSIX to Blob
+        run: |
+          az storage blob upload --container-name $UNSIGNED_CONTAINER \
+            --account-name $STORAGE_ACCOUNT \
+            --auth-mode login \
+            --file '*.vsix' \
+            --overwrite
+
+      - id: ado_token
+        run: |
+          token=$(az account get-access-token \
+            --resource 499b84ac-1321-427f-aa17-267ca6975798 \
+            --query accessToken -o tsv)
+          echo "token=$token" >> $GITHUB_OUTPUT
+
+      - id: trigger_ado
+        run: |
+          body=$(jq -n --arg ref "refs/heads/${{ github.ref_name }}" \
+            --argjson resources '{"repositories":{"self":{"refName":$ref}}}' \
+            '{resources:$resources}')
+          resp=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ steps.ado_token.outputs.token }}" \
+            -H "Content-Type: application/json" \
+            "https://dev.azure.com/${ADO_ORG}/${ADO_PROJECT}/_apis/pipelines/${ADO_PIPELINE_ID}/runs?api-version=7.1-preview.1" \
+            -d "$body")
+          echo "$resp" | jq .
+          run_id=$(echo "$resp" | jq -r '.id')
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
+
+      - name: Poll for ADO result
+        run: |
+          run_id=${{ steps.trigger_ado.outputs.run_id }}
+          for i in {1..60}; do
+            status=$(curl -s -H "Authorization: Bearer ${{ steps.ado_token.outputs.token }}" \
+              "https://dev.azure.com/${ADO_ORG}/${ADO_PROJECT}/_apis/pipelines/${ADO_PIPELINE_ID}/runs/$run_id?api-version=7.1-preview.1" \
+              | jq -r '.state')
+            echo "ADO run status: $status"
+            [ "$status" = "completed" ] && break
+            sleep 10
+          done
+
+      - name: Download signed VSIX from Blob
+        run: |
+          az storage blob download-batch --source $SIGNED_CONTAINER \
+            --account-name $STORAGE_ACCOUNT \
+            --pattern "*.vsix" \
+            --auth-mode login \
+            --destination .
+
+      - name: Publish to Marketplace
+        run: |
+          vsix=$(ls *.vsix | head -n 1)
+          npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }} "$vsix"

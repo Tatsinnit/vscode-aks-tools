@@ -71,6 +71,12 @@ import * as l10n from "@vscode/l10n";
 import * as path from "path";
 import * as fs from "fs";
 import { addMcpServerToUserSettings } from "./commands/aksMCP/aksMCPServer";
+import { AksChatParticipant } from "./chatParticipant/aksChatParticipant";
+import { ExternalRequestServer } from "./chatParticipant/externalRequestServer";
+
+// Global variables for chat participant
+let chatParticipant: AksChatParticipant;
+let externalServer: ExternalRequestServer;
 
 export async function activate(context: vscode.ExtensionContext) {
     const language = vscode.env.language;
@@ -159,6 +165,48 @@ export async function activate(context: vscode.ExtensionContext) {
         registerCommandWithTelemetry("aks.aksFleetProperties", aksFleetProperties);
         registerCommandWithTelemetry("aks.aksSetupMCPServerCommands", addMcpServerToUserSettings);
 
+        // Initialize Chat Participant and External Request Server
+        console.log("🤖 Initializing AKS Chat Participant...");
+        chatParticipant = new AksChatParticipant();
+        
+        // Initialize external request server
+        externalServer = new ExternalRequestServer(chatParticipant);
+        
+        // Register commands to manually start/stop server
+        registerCommandWithTelemetry("aks.startChatServer", async () => {
+            try {
+                await externalServer.start(8080);
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to start chat server: ${error}`);
+            }
+        });
+
+        registerCommandWithTelemetry("aks.stopChatServer", async () => {
+            try {
+                await externalServer.stop();
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to stop chat server: ${error}`);
+            }
+        });
+
+        // Auto-start the external server
+        try {
+            await externalServer.start(8080);
+        } catch (error) {
+            console.error("Failed to auto-start chat server:", error);
+            vscode.window.showWarningMessage(`AKS Chat Participant server failed to start: ${error}`);
+        }
+
+        // Add to subscriptions for cleanup
+        context.subscriptions.push({
+            dispose: () => {
+                console.log("🧹 Cleaning up AKS Chat Participant...");
+                chatParticipant?.dispose();
+                externalServer?.stop();
+            }
+        });
+
+        // vscode.commands.executeCommand("github.copilot.interactiveEditorChat.send", "send something test");
         await registerAzureServiceNodes(context);
 
         const azureAccountTreeItem = createAzureAccountTreeItem(sessionProvider);
@@ -240,4 +288,16 @@ function telemetrise(command: string, callback: CommandCallback): CommandCallbac
 
         return callback(context, target);
     };
+}
+
+// Extension deactivation function
+export function deactivate() {
+    console.log("🛑 Deactivating AKS Extension...");
+    if (chatParticipant) {
+        chatParticipant.dispose();
+    }
+    if (externalServer) {
+        externalServer.stop();
+    }
+    console.log("✅ AKS Extension deactivated");
 }

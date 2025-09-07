@@ -56,7 +56,7 @@ export default [
                 {
                     selector: "variable",
                     format: ["camelCase", "UPPER_CASE"],
-                    leadingUnderscore: "forbid",
+                    leadingUnderscore: "allow",
                     trailingUnderscore: "forbid",
                 },
             ],
@@ -67,6 +67,8 @@ export default [
                 "error",
                 {
                     ignoreRestSiblings: true,
+                    argsIgnorePattern: "^_",
+                    varsIgnorePattern: "^_",
                 },
             ],
 
@@ -87,7 +89,7 @@ export default [
                 "undefined",
             ],
 
-            "no-underscore-dangle": "error",
+            "no-underscore-dangle": ["error", { allowAfterThis: true, allow: ["_context", "_token"] }],
             "no-var": "error",
             "prefer-const": "error",
             "prefer-template": "error",
