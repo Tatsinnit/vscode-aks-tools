@@ -12,6 +12,9 @@ parameters:
   - name: nodeVersion
     type: string
     default: 22.x
+  - name: publishVersion
+    type: string
+    default: 0.0.1
 
 extends:
   # The pipeline extends the 1ES PT which will inject different SDL and compliance tasks.
@@ -163,9 +166,9 @@ extends:
                   gitHubConnection: tatspoc
                   repositoryName: Tatsinnit/vscode-aks-tools
                   action: create
-                  title: v134.0.1-test
+                  title: ${{ parameters.publishVersion }}
                   tagSource: userSpecifiedTag
-                  tag: v134.0.1-test
+                  tag: ${{ parameters.publishVersion }}
                   assets: |
                     $(Pipeline.Workspace)/vscode-extension-unsigned/vscode-aks-tools-*.vsix
               - bash: |
