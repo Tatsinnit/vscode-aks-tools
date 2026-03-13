@@ -57,6 +57,7 @@
   "Run Draft Validate for YAML": "Run Draft Validate for YAML",
   "Test KAITO models": "Test KAITO models",
   "Create Fleet": "Create Fleet",
+  "Create managed namespace for fleet": "Create managed namespace for fleet",
   "Show Fleet Properties": "Show Fleet Properties",
   "Run AKS Diagnostics": "Run AKS Diagnostics",
   "Automated Deployments": "Automated Deployments",

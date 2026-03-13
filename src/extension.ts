@@ -65,6 +65,7 @@ import { aksOpenKubectlPanel } from "./commands/aksOpenKubectlPanel/aksOpenKubec
 import aksClusterFilter from "./commands/utils/clusterfilter";
 //import aksAutomatedDeployments from "./commands/devhub/aksAutomatedDeployments";
 import aksCreateFleet from "./commands/aksFleet/aksFleetManager";
+import aksCreateManagedFleetNamespace from "./commands/aksFleet/aksCreateManagedFleetNamespace";
 import aksFleetProperties from "./commands/aksFleetProperties/askFleetProperties";
 import * as l10n from "@vscode/l10n";
 import * as path from "path";
@@ -160,6 +161,7 @@ export async function activate(context: vscode.ExtensionContext) {
         registerCommandWithTelemetry("aks.clusterFilter", aksClusterFilter);
         //registerCommandWithTelemetry("aks.aksAutomatedDeployments", aksAutomatedDeployments);
         registerCommandWithTelemetry("aks.aksCreateFleet", aksCreateFleet);
+        registerCommandWithTelemetry("aks.aksCreateManagedFleetNamespace", aksCreateManagedFleetNamespace);
         registerCommandWithTelemetry("aks.aksFleetProperties", aksFleetProperties);
         registerCommandWithTelemetry("aks.aksSetupMCPServerCommands", addMcpServerToUserSettings);
         registerCommandWithTelemetry("aks.runContainerAssist", runContainerAssist);
