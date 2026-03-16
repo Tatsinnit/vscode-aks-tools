@@ -66,6 +66,12 @@ import aksClusterFilter from "./commands/utils/clusterfilter";
 //import aksAutomatedDeployments from "./commands/devhub/aksAutomatedDeployments";
 import aksCreateFleet from "./commands/aksFleet/aksFleetManager";
 import aksCreateManagedFleetNamespace from "./commands/aksFleet/aksCreateManagedFleetNamespace";
+import {
+    aksGetManagedFleetNamespaceCredentials,
+    aksListFleetHubAcrs,
+    aksListManagedFleetNamespaces,
+    aksSetManagedFleetNamespaceRbac,
+} from "./commands/aksFleet/aksManagedFleetNamespaceOps";
 import aksFleetProperties from "./commands/aksFleetProperties/askFleetProperties";
 import * as l10n from "@vscode/l10n";
 import * as path from "path";
@@ -162,6 +168,13 @@ export async function activate(context: vscode.ExtensionContext) {
         //registerCommandWithTelemetry("aks.aksAutomatedDeployments", aksAutomatedDeployments);
         registerCommandWithTelemetry("aks.aksCreateFleet", aksCreateFleet);
         registerCommandWithTelemetry("aks.aksCreateManagedFleetNamespace", aksCreateManagedFleetNamespace);
+        registerCommandWithTelemetry("aks.aksListManagedFleetNamespaces", aksListManagedFleetNamespaces);
+        registerCommandWithTelemetry(
+            "aks.aksGetManagedFleetNamespaceCredentials",
+            aksGetManagedFleetNamespaceCredentials,
+        );
+        registerCommandWithTelemetry("aks.aksSetManagedFleetNamespaceRbac", aksSetManagedFleetNamespaceRbac);
+        registerCommandWithTelemetry("aks.aksListFleetHubAcrs", aksListFleetHubAcrs);
         registerCommandWithTelemetry("aks.aksFleetProperties", aksFleetProperties);
         registerCommandWithTelemetry("aks.aksSetupMCPServerCommands", addMcpServerToUserSettings);
         registerCommandWithTelemetry("aks.runContainerAssist", runContainerAssist);

@@ -1,3 +1,4 @@
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import {
     FleetManagedNamespace,
     KnownAdoptionPolicy,
@@ -5,7 +6,6 @@ import {
     KnownPlacementType,
     KnownPropagationType,
 } from "@azure/arm-containerservicefleet";
-import { IActionContext } from "@microsoft/vscode-azext-utils";
 import * as k8s from "vscode-kubernetes-tools-api";
 import { env, l10n, QuickPickItem, Uri, window } from "vscode";
 import { getReadySessionProvider } from "../../auth/azureAuth";
@@ -14,7 +14,7 @@ import { getAksFleetClient } from "../utils/arm";
 import { fleetResourceType, getFleetMembers, getResources } from "../utils/azureResources";
 import { getAksClusterSubscriptionNode } from "../utils/clusters";
 import { failed } from "../utils/errorable";
-import { getFleet, getAksFleetTreeNode } from "../utils/fleet";
+import { getAksFleetTreeNode, getFleet } from "../utils/fleet";
 import { longRunning } from "../utils/host";
 import { reporter } from "../utils/reporter";
 
@@ -137,8 +137,9 @@ export default async function aksCreateManagedFleetNamespace(_context: IActionCo
     let resolvedPlacementChoice: PlacementChoice = placementChoice;
     let selectedClusterNames: string[] = [];
     if (resolvedPlacementChoice === "selectedMembers") {
+        const fleetId = `/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.ContainerService/fleets/${fleetName}`;
         const members = await getFleetMembers(sessionProvider.result, {
-            id: fleet.result.id!,
+            id: fleetId,
             name: fleetName,
             resourceGroup: resourceGroupName,
         });

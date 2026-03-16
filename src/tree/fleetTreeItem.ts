@@ -51,7 +51,7 @@ class FleetTreeItem extends AzExtParentTreeItem implements FleetTreeNode {
     public readonly contextValue: string = `aks.fleet`;
 
     public get label(): string {
-        return this.name;
+        return `${this.name} (AKS Fleet Hub)`;
     }
 
     public get resourceType(): string {
