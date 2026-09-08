@@ -2,7 +2,19 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { ESLint } from "eslint";
 
-const eslint = new ESLint();
+// CI providers set `CI=true`, which makes typescript-eslint infer "single run" mode. In that mode the
+// type-aware program is compiled ahead of time from the files on disk, so the first `lintText` call for
+// a given path is parsed from the on-disk contents instead of the snippet we pass in. Disabling the
+// inference keeps `lintText` authoritative locally and on CI alike.
+const eslint = new ESLint({
+    overrideConfig: {
+        languageOptions: {
+            parserOptions: {
+                disallowAutomaticSingleRunInference: true,
+            },
+        },
+    },
+});
 const filePath = "src/components/ProgressRing.tsx";
 
 for (const [name, code, ruleId] of [
